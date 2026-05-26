@@ -1,0 +1,18 @@
+{
+  "name": "ご機嫌ノート",
+  "short_name": "ご機嫌ノート",
+  "description": "毎日のご機嫌と痛みを記録する健康日記アプリ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fff6f9",
+  "theme_color": "#f472b6",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

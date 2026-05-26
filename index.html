@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ご機嫌ノート 💓</title>
+
+    <!-- PWA設定 -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#f472b6">
+    <!-- iOS向け -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ご機嫌ノート">
+    <link rel="apple-touch-icon" href="./icon.svg">
+
+    <style>
+        :root {
+            --bg:       #fff6f9;
+            --surface:  #ffffff;
+            --surface2: #fff0f5;
+            --border:   #ffd6e8;
+            --accent:   #e8659a;
+            --text:     #5c2e42;
+            --muted:    #c4849a;
+            --shadow:   rgba(232, 101, 154, 0.15);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'メイリオ', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 15% 10%, rgba(255,182,215,0.28) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 75%, rgba(255,200,230,0.22) 0%, transparent 55%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px 14px 90px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .header { text-align: center; padding: 22px 0 18px; }
+        .header .mascot {
+            font-size: 54px; display: block; margin-bottom: 6px;
+            animation: float 3.5s ease-in-out infinite;
+            filter: drop-shadow(0 4px 14px rgba(255,150,190,0.55));
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0) rotate(-3deg); }
+            50%     { transform: translateY(-8px) rotate(3deg); }
+        }
+        .header h1 {
+            font-size: 24px; font-weight: 900;
+            background: linear-gradient(135deg, #f472b6, #e11d8b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; letter-spacing: 0.07em;
+        }
+        .header .subtitle { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+        .card {
+            background: var(--surface); border-radius: 24px; padding: 20px 18px;
+            margin-bottom: 14px; box-shadow: 0 4px 26px var(--shadow);
+            border: 1.5px solid var(--border);
+        }
+        .card-title {
+            font-size: 13px; font-weight: 700; color: var(--accent);
+            margin-bottom: 14px; display: flex; align-items: center; gap: 7px;
+        }
+        .today-date {
+            text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 16px;
+            background: var(--surface2); border-radius: 12px; padding: 7px;
+            border: 1px solid var(--border);
+        }
+
+        .mood-selector { display: flex; justify-content: space-between; gap: 6px; }
+        .mood-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
+            padding: 11px 2px; border: 2px solid var(--border); border-radius: 18px;
+            background: var(--surface2); cursor: pointer;
+            transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
+            font-size: 10px; color: var(--muted); font-family: inherit;
+        }
+        .mood-btn .emo { font-size: 27px; line-height: 1; }
+        .mood-btn:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .mood-btn.selected {
+            border-color: #f472b6; background: linear-gradient(160deg,#fff0f8,#ffe4f1); color:#e11d8b;
+            transform: translateY(-5px) scale(1.06); box-shadow: 0 7px 18px rgba(232,101,154,.3);
+        }
+
+        .body-map-section { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .body-map-hint { font-size: 11px; color: var(--muted); }
+
+        .jg { cursor: pointer; }
+        .jg .jvis {
+            fill: white; stroke: #ffb3d1; stroke-width: 2.2;
+            transition: fill 0.18s, stroke 0.18s, filter 0.18s;
+        }
+        .jg:hover .jvis { fill: #ffe4f1; stroke: #f472b6; }
+        .jg.on .jvis {
+            fill: #f472b6; stroke: #e11d8b;
+            filter: drop-shadow(0 0 5px rgba(244,114,182,.75));
+            animation: jbeat 1.4s ease-in-out infinite;
+            transform-box: fill-box; transform-origin: center;
+        }
+        @keyframes jbeat {
+            0%,100% { transform: scale(1);   }
+            50%     { transform: scale(1.3); }
+        }
+        .jhit { fill: transparent; }
+
+        .joint-tags {
+            display: flex; flex-wrap: wrap; gap: 5px;
+            justify-content: center; min-height: 26px; padding: 0 4px;
+        }
+        .jtag {
+            background: #ffe4f1; border: 1.5px solid #f472b6; color: #e11d8b;
+            border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .jtag:hover { background: #ffc6df; }
+        .jtag-none { font-size: 11px; color: var(--muted); }
+        .clear-btn {
+            background: transparent; border: 1px solid var(--border);
+            border-radius: 10px; padding: 4px 14px; font-size: 11px;
+            color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.15s;
+        }
+        .clear-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .pain-row { display: flex; align-items: center; gap: 10px; }
+        .pain-val-sm { font-size: 20px; font-weight: 800; min-width: 44px; text-align: center; }
+        .pain-slider {
+            flex: 1; height: 7px; -webkit-appearance: none; appearance: none;
+            background: linear-gradient(to right, #86efac 0%, #fcd34d 50%, #f87171 100%);
+            border-radius: 4px; outline: none;
+        }
+        .pain-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+            background: white; border: 3px solid #f472b6; cursor: pointer;
+            box-shadow: 0 2px 8px var(--shadow); transition: transform 0.2s;
+        }
+        .pain-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        .memo-input {
+            width: 100%; border: 1.5px solid var(--border); border-radius: 14px;
+            padding: 10px 13px; font-size: 13px; color: var(--text);
+            background: var(--surface2); resize: none; outline: none;
+            font-family: inherit; transition: border-color 0.2s;
+        }
+        .memo-input:focus { border-color: #f472b6; }
+        .memo-input::placeholder { color: #e4b0c6; }
+
+        .save-btn {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, #f472b6, #e11d8b);
+            color: white; border: none; border-radius: 18px; font-size: 15px;
+            font-weight: 800; cursor: pointer; transition: all 0.2s;
+            letter-spacing: 0.06em; box-shadow: 0 5px 20px rgba(232,101,154,.45);
+            font-family: inherit;
+        }
+        .save-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(232,101,154,.55); }
+        .save-btn:active { transform: translateY(0); }
+
+        .toast {
+            position: fixed; bottom: 74px; left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: linear-gradient(135deg, #f472b6, #e11d8b);
+            color: white; padding: 12px 28px; border-radius: 24px; font-size: 13px;
+            font-weight: 700; opacity: 0; transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+            z-index: 200; white-space: nowrap; box-shadow: 0 4px 18px rgba(232,101,154,.4);
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .tab-nav {
+            display: flex; background: var(--surface); border-radius: 18px;
+            padding: 4px; gap: 4px; margin-bottom: 14px;
+            box-shadow: 0 3px 14px var(--shadow); border: 1.5px solid var(--border);
+        }
+        .tab-btn {
+            flex: 1; padding: 9px 4px; border: none; border-radius: 13px;
+            background: transparent; color: var(--muted); font-size: 12px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #f472b6, #e11d8b);
+            color: white; box-shadow: 0 3px 10px rgba(232,101,154,.35);
+        }
+
+        .nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .nav-btn {
+            background: var(--surface2); border: 1.5px solid var(--border); border-radius: 11px;
+            padding: 6px 16px; font-size: 20px; cursor: pointer; transition: all 0.2s;
+            color: var(--accent); line-height: 1; font-family: inherit;
+        }
+        .nav-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .period-label { font-size: 15px; font-weight: 800; color: var(--text); }
+
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; margin-bottom: 16px; }
+        .stat-card {
+            background: linear-gradient(160deg, var(--surface2), #fff8fb); border-radius: 16px;
+            padding: 12px 6px; text-align: center; border: 1.5px solid var(--border);
+        }
+        .stat-emo { font-size: 20px; line-height: 1.2; }
+        .stat-val { font-size: 23px; font-weight: 800; color: var(--accent); line-height: 1.1; }
+        .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+        .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+        .day-cell  { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .day-lbl   { font-size: 10px; color: var(--muted); font-weight: 700; }
+        .day-bubble {
+            width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; background: var(--surface2); border: 2px solid var(--border);
+        }
+        .day-bubble.has-data { box-shadow: 0 3px 10px var(--shadow); }
+        .pain-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+        .bar-chart { display: flex; align-items: flex-end; gap: 5px; height: 110px; }
+        .bar-item  { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+        .bar-fill  { width: 100%; border-radius: 6px 6px 0 0; min-height: 3px; transition: height 0.4s ease; }
+        .bar-lbl   { font-size: 9px; color: var(--muted); }
+
+        .month-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cal-hdr { text-align: center; font-size: 10px; font-weight: 700; color: var(--muted); padding: 4px 0; }
+        .cal-day {
+            aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; background: var(--surface2);
+            border: 1.5px solid var(--border); transition: transform 0.15s;
+        }
+        .cal-day:hover { transform: scale(1.08); }
+        .cal-day .dn { font-size: 9px; color: var(--muted); line-height: 1; }
+        .cal-day .mm { font-size: 14px; line-height: 1; }
+        .cal-day.empty { background: transparent; border-color: transparent; }
+        .cal-day.today-mark { border-color: #f472b6; border-width: 2px; }
+
+        .heatmap-wrap { overflow-x: auto; padding-bottom: 6px; }
+        .heatmap-inner { display: flex; gap: 7px; min-width: max-content; }
+        .hm-month-lbl { font-size: 10px; color: var(--muted); text-align: center; margin-bottom: 4px; font-weight: 700; }
+        .hm-grid { display: grid; grid-template-columns: repeat(7, 13px); gap: 2px; }
+        .hm-cell { width: 13px; height: 13px; border-radius: 3px; background: var(--border); transition: transform 0.1s; }
+        .hm-cell:hover { transform: scale(1.5); }
+
+        .legend { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--muted); margin-top: 12px; }
+        .legend-item { display: flex; align-items: center; gap: 3px; }
+
+        .cheer-msg {
+            background: linear-gradient(135deg, #fff0f8, #ffe4f1);
+            border: 1.5px solid #ffc6df; border-radius: 18px; padding: 14px 18px;
+            font-size: 13px; text-align: center; color: #c44e7e; font-weight: 600;
+            margin-bottom: 14px; line-height: 1.7;
+        }
+        .section-lbl {
+            font-size: 12px; color: var(--muted); font-weight: 700;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 7px;
+        }
+
+        /* ── バックアップカード ── */
+        .backup-row { display: flex; gap: 10px; }
+        .backup-btn {
+            flex: 1; padding: 12px 8px; border-radius: 14px; font-size: 13px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit;
+            border: 1.5px solid var(--border);
+        }
+        .backup-btn.export {
+            background: linear-gradient(135deg, #f472b6, #e11d8b); color: white;
+            border-color: transparent; box-shadow: 0 3px 12px rgba(232,101,154,.35);
+        }
+        .backup-btn.export:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(232,101,154,.45); }
+        .backup-btn.import-btn {
+            background: var(--surface2); color: var(--accent);
+        }
+        .backup-btn.import-btn:hover { background: #ffe4f1; border-color: #f472b6; }
+        .backup-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.6; }
+
+        @media (max-width: 400px) {
+            .mood-btn .emo { font-size: 22px; }
+            .day-bubble { width: 32px; height: 32px; font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <span class="mascot">💓</span>
+    <h1>ご機嫌ノート</h1>
+    <p class="subtitle">今日のご機嫌・痛みをこっそり記録しよう</p>
+</div>
+
+<div class="cheer-msg" id="cheerMsg">読み込み中...</div>
+
+<div class="card">
+    <div class="card-title">💓 今日のきろく</div>
+    <div class="today-date" id="todayDate"></div>
+
+    <div style="margin-bottom:20px;">
+        <div class="section-lbl">😊 今日のご機嫌は？</div>
+        <div class="mood-selector">
+            <button class="mood-btn" data-mood="1" onclick="selectMood(1)"><span class="emo">😔</span><span>つらい</span></button>
+            <button class="mood-btn" data-mood="2" onclick="selectMood(2)"><span class="emo">😕</span><span>いまいち</span></button>
+            <button class="mood-btn" data-mood="3" onclick="selectMood(3)"><span class="emo">😊</span><span>ふつう</span></button>
+            <button class="mood-btn" data-mood="4" onclick="selectMood(4)"><span class="emo">😄</span><span>よい</span></button>
+            <button class="mood-btn" data-mood="5" onclick="selectMood(5)"><span class="emo">🥰</span><span>最高！</span></button>
+        </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+        <div class="section-lbl">🦴 今日痛んだ関節は？<span style="font-size:10px;font-weight:400;">（タップして記録）</span></div>
+        <div class="body-map-section">
+            <div class="body-map-hint">向かって左がご自身の右側です</div>
+            <svg id="bodySvg" viewBox="-12 0 224 420" width="200" style="overflow:visible; display:block;">
+                <line x1="68" y1="82" x2="46" y2="134" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
+                <line x1="46" y1="134" x2="40" y2="185" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
+                <line x1="40" y1="185" x2="34" y2="214" stroke="#ffd6e8" stroke-width="9"  stroke-linecap="round"/>
+                <ellipse cx="31" cy="221" rx="8" ry="5.5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
+                <line x1="132" y1="82" x2="154" y2="134" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
+                <line x1="154" y1="134" x2="160" y2="185" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
+                <line x1="160" y1="185" x2="166" y2="214" stroke="#ffd6e8" stroke-width="9"  stroke-linecap="round"/>
+                <ellipse cx="169" cy="221" rx="8" ry="5.5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
+                <line x1="84"  y1="224" x2="83"  y2="298" stroke="#ffd6e8" stroke-width="15" stroke-linecap="round"/>
+                <line x1="83"  y1="298" x2="81"  y2="360" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
+                <line x1="81"  y1="360" x2="74"  y2="388" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
+                <ellipse cx="70" cy="395" rx="10" ry="5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
+                <line x1="116" y1="224" x2="117" y2="298" stroke="#ffd6e8" stroke-width="15" stroke-linecap="round"/>
+                <line x1="117" y1="298" x2="119" y2="360" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
+                <line x1="119" y1="360" x2="126" y2="388" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
+                <ellipse cx="130" cy="395" rx="10" ry="5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
+                <rect x="63" y="69" width="74" height="160" rx="14" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
+                <rect x="91" y="52" width="18" height="21" rx="6" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
+                <circle cx="100" cy="30" r="23" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
+                <ellipse cx="87"  cy="36" rx="6" ry="4" fill="#f9a8d4" opacity="0.45"/>
+                <ellipse cx="113" cy="36" rx="6" ry="4" fill="#f9a8d4" opacity="0.45"/>
+                <circle cx="93"  cy="26" r="2.5" fill="#c44e7e"/>
+                <circle cx="107" cy="26" r="2.5" fill="#c44e7e"/>
+                <path d="M91,23 Q93,21 95,23" fill="none" stroke="#c44e7e" stroke-width="1.2" stroke-linecap="round"/>
+                <path d="M105,23 Q107,21 109,23" fill="none" stroke="#c44e7e" stroke-width="1.2" stroke-linecap="round"/>
+                <path d="M94,35 Q100,41 106,35" fill="none" stroke="#e8659a" stroke-width="1.8" stroke-linecap="round"/>
+                <text x="8"   y="189" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">手首</text>
+                <text x="11"  y="218" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">指</text>
+                <text x="192" y="189" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">手首</text>
+                <text x="189" y="218" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">指</text>
+                <text x="16"  y="108" font-size="10" fill="#e4b0c6" font-weight="bold" text-anchor="middle" font-family="sans-serif">右</text>
+                <text x="184" y="108" font-size="10" fill="#e4b0c6" font-weight="bold" text-anchor="middle" font-family="sans-serif">左</text>
+                <g id="jointLayer"></g>
+            </svg>
+            <div class="joint-tags" id="jointTags"><span class="jtag-none">タップして選択</span></div>
+            <button class="clear-btn" onclick="clearJoints()">✕ クリア</button>
+        </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+        <div class="section-lbl">💊 痛みの強さ（0＝なし　10＝激痛）</div>
+        <div class="pain-row">
+            <span class="pain-val-sm" id="painDisplay">😌 0</span>
+            <input type="range" class="pain-slider" id="painSlider" min="0" max="10" value="0" oninput="updatePain(this.value)">
+        </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+        <div class="section-lbl">📝 メモ（任意）</div>
+        <textarea class="memo-input" id="memoInput" rows="2" placeholder="今日の調子・気づきなど..."></textarea>
+    </div>
+
+    <button class="save-btn" onclick="saveRecord()">💓 今日の記録を保存する</button>
+</div>
+
+<div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('week')">📅 週間</button>
+    <button class="tab-btn"        onclick="switchTab('month')">🗓 月間</button>
+    <button class="tab-btn"        onclick="switchTab('year')">🌿 年間</button>
+</div>
+
+<div id="view-week" class="card">
+    <div class="nav-row">
+        <button class="nav-btn" onclick="changeWeek(-1)">‹</button>
+        <span class="period-label" id="weekLabel"></span>
+        <button class="nav-btn" onclick="changeWeek(1)">›</button>
+    </div>
+    <div class="stats-row" id="weekStats"></div>
+    <div class="card-title">💓 ご機嫌の記録</div>
+    <div class="week-grid" id="weekGrid"></div>
+    <div class="card-title" style="margin-top:14px;">💊 痛みの推移</div>
+    <div class="bar-chart" id="weekPainChart"></div>
+</div>
+
+<div id="view-month" class="card" style="display:none;">
+    <div class="nav-row">
+        <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+        <span class="period-label" id="monthLabel"></span>
+        <button class="nav-btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="stats-row" id="monthStats"></div>
+    <div class="month-cal" id="monthCal"></div>
+    <div class="legend">
+        <span class="legend-item">😔 つらい</span><span class="legend-item">😕 いまいち</span>
+        <span class="legend-item">😊 ふつう</span><span class="legend-item">😄 よい</span>
+        <span class="legend-item">🥰 最高</span>
+    </div>
+</div>
+
+<div id="view-year" class="card" style="display:none;">
+    <div class="nav-row">
+        <button class="nav-btn" onclick="changeYear(-1)">‹</button>
+        <span class="period-label" id="yearLabel"></span>
+        <button class="nav-btn" onclick="changeYear(1)">›</button>
+    </div>
+    <div class="stats-row" id="yearStats"></div>
+    <div class="card-title">🌿 ご機嫌ヒートマップ</div>
+    <div class="heatmap-wrap"><div class="heatmap-inner" id="yearHeatmap"></div></div>
+    <div id="yearLegend"></div>
+</div>
+
+<!-- データのバックアップ -->
+<div class="card">
+    <div class="card-title">🗂 データのバックアップ</div>
+    <div class="backup-row">
+        <button class="backup-btn export" onclick="exportData()">📥 ダウンロード</button>
+        <button class="backup-btn import-btn" onclick="document.getElementById('importFile').click()">📤 読み込む</button>
+        <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+    </div>
+    <p class="backup-note">
+        機種変更のときは「ダウンロード」でファイルを保存し、<br>
+        新しいスマホで「読み込む」を使うとデータが引き継げます 💓
+    </p>
+</div>
+
+<div class="toast" id="toast">💓 記録しました！</div>
+
+<script>
+const JOINTS = [
+    { id:'r-jaw', label:'右顎(TMJ)', cx:84,  cy:46  },
+    { id:'l-jaw', label:'左顎(TMJ)', cx:116, cy:46  },
+    { id:'neck',  label:'頸部',      cx:100, cy:67  },
+    { id:'r-sho', label:'右肩',      cx:63,  cy:77  },
+    { id:'l-sho', label:'左肩',      cx:137, cy:77  },
+    { id:'r-elb', label:'右肘',      cx:46,  cy:134 },
+    { id:'l-elb', label:'左肘',      cx:154, cy:134 },
+    { id:'r-wri', label:'右手首',    cx:40,  cy:185 },
+    { id:'l-wri', label:'左手首',    cx:160, cy:185 },
+    { id:'r-fin', label:'右手指',    cx:33,  cy:214 },
+    { id:'l-fin', label:'左手指',    cx:167, cy:214 },
+    { id:'r-hip', label:'右股関節',  cx:82,  cy:226 },
+    { id:'l-hip', label:'左股関節',  cx:118, cy:226 },
+    { id:'r-kne', label:'右膝',      cx:82,  cy:298 },
+    { id:'l-kne', label:'左膝',      cx:118, cy:298 },
+    { id:'r-ank', label:'右足首',    cx:80,  cy:360 },
+    { id:'l-ank', label:'左足首',    cx:120, cy:360 },
+    { id:'r-toe', label:'右足指',    cx:73,  cy:388 },
+    { id:'l-toe', label:'左足指',    cx:127, cy:388 },
+];
+
+function buildJointSvg() {
+    document.getElementById('jointLayer').innerHTML = JOINTS.map(j => `
+        <g class="jg" id="jg-${j.id}" onclick="toggleJoint('${j.id}')" role="button" aria-label="${j.label}">
+            <circle class="jhit" cx="${j.cx}" cy="${j.cy}" r="14"/>
+            <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="7"/>
+        </g>`).join('');
+}
+
+const STORAGE_KEY = 'genki_note_v1';
+function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+function dateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+const today       = new Date();
+const WEEK_DAYS   = ['月','火','水','木','金','土','日'];
+const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const MOOD_EMO    = ['','😔','😕','😊','😄','🥰'];
+const MOOD_LABEL  = ['','つらい','いまいち','ふつう','よい','最高！'];
+const MOOD_COLOR  = ['','#fecdd3','#fed7aa','#bbf7d0','#bae6fd','#fbcfe8'];
+function painColor(v) {
+    if (v === 0) return '#86efac';
+    if (v <= 3)  return '#fcd34d';
+    if (v <= 6)  return '#fb923c';
+    return '#f87171';
+}
+const PAIN_EMO = ['😌','😌','🙂','😐','😐','😟','😟','😣','😣','😭','😭'];
+const PAIN_COL = ['#86efac','#86efac','#a3e635','#fde047','#fcd34d','#fb923c','#f97316','#ef4444','#dc2626','#b91c1c','#7f1d1d'];
+
+const CHEERS = [
+    '今日も一歩ずつでいいよ 💓',
+    '記録すること自体が、もう十分えらいよ ✨',
+    '寛解している今日があること、本当によかった 🌸',
+    '自分のからだを大切にしてる、それってすごく素敵なこと 💕',
+    'つらい日もある。でもここにいるだけでえらい 💓',
+    'からだと仲良く、今日もゆっくり行こうね 🌷',
+    '元気な日も、しんどい日も、全部あなたの大切な一日 🌼',
+    '小さな気づきの積み重ねが、からだを知る一番の近道 📖',
+    'あなたのペースで、それが一番いい 💕',
+    '痛みと向き合ってきた自分を、もっと褒めてあげてね 🥰',
+    'コツコツ記録してる、それだけで十分すごい ✨',
+    '今日のからだの声、ちゃんと聞いてあげよう 💓',
+    '調子がいい日は、思いっきり楽しんで！🎉',
+    'しんどい日は、のんびりする日。それでいい 🍵',
+    '毎日記録できなくてもいい。思い出したときでOK 🌸',
+    '今日の記録が、未来の自分を助けてくれるよ 📝',
+    '寛解、最高！今日も笑顔でいられるといいね 😊',
+    'からだに優しい一日を 💓',
+    '今日はどんな日だった？ゆっくり教えてね 🌿',
+    'ここに来てくれてありがとう 💓',
+];
+
+function showCheerMsg() {
+    const rec = loadData()[dateKey(today)];
+    document.getElementById('cheerMsg').textContent = rec
+        ? `今日はもう記録済み ${MOOD_EMO[rec.mood]}　よくがんばったね！💕`
+        : CHEERS[Math.floor(Math.random() * CHEERS.length)];
+}
+
+let selectedMood   = null;
+let selectedPain   = 0;
+let selectedJoints = new Set();
+
+document.getElementById('todayDate').textContent =
+    `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日（${['日','月','火','水','木','金','土'][today.getDay()]}）`;
+
+function loadTodayData() {
+    const rec = loadData()[dateKey(today)];
+    if (!rec) return;
+    selectedMood = rec.mood;
+    selectedPain = rec.pain || 0;
+    selectedJoints = new Set(rec.joints || []);
+    document.getElementById('painSlider').value = selectedPain;
+    document.getElementById('memoInput').value  = rec.memo || '';
+    updatePain(selectedPain);
+    document.querySelectorAll('.mood-btn').forEach(b => {
+        b.classList.toggle('selected', parseInt(b.dataset.mood) === rec.mood);
+    });
+    refreshJointUI();
+}
+
+function selectMood(val) {
+    selectedMood = val;
+    document.querySelectorAll('.mood-btn').forEach(b => {
+        b.classList.toggle('selected', parseInt(b.dataset.mood) === val);
+    });
+}
+
+function updatePain(val) {
+    selectedPain = parseInt(val);
+    const v = selectedPain;
+    document.getElementById('painDisplay').innerHTML =
+        `<span style="color:${PAIN_COL[v]}">${PAIN_EMO[v]}</span> ` +
+        `<span style="color:${PAIN_COL[v]};font-size:22px;">${v}</span>`;
+}
+
+function toggleJoint(id) {
+    selectedJoints.has(id) ? selectedJoints.delete(id) : selectedJoints.add(id);
+    refreshJointUI();
+}
+function clearJoints() { selectedJoints.clear(); refreshJointUI(); }
+
+function refreshJointUI() {
+    JOINTS.forEach(j => {
+        const g = document.getElementById(`jg-${j.id}`);
+        if (g) g.classList.toggle('on', selectedJoints.has(j.id));
+    });
+    const tagsEl = document.getElementById('jointTags');
+    if (selectedJoints.size === 0) {
+        tagsEl.innerHTML = '<span class="jtag-none">タップして選択</span>';
+    } else {
+        tagsEl.innerHTML = JOINTS.filter(j => selectedJoints.has(j.id))
+            .map(j => `<span class="jtag" onclick="toggleJoint('${j.id}')">${j.label} ✕</span>`)
+            .join('');
+    }
+}
+
+function saveRecord() {
+    if (!selectedMood) { alert('ご機嫌度を選んでね 💓'); return; }
+    const data = loadData();
+    data[dateKey(today)] = {
+        mood: selectedMood, pain: selectedPain,
+        joints: [...selectedJoints],
+        memo: document.getElementById('memoInput').value.trim(),
+        time: new Date().toISOString(),
+    };
+    saveData(data);
+    const msgs = ['💓 記録しました！今日もよくがんばった 💕', '🌸 保存できたよ！えらい！', '✨ 記録完了！ゆっくりね 💓'];
+    showToast(msgs[Math.floor(Math.random() * msgs.length)]);
+    showCheerMsg();
+    renderCurrentView();
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ── エクスポート（ダウンロード） ──
+function exportData() {
+    const data = loadData();
+    const count = Object.keys(data).length;
+    if (count === 0) { showToast('まだ記録がないよ 💓'); return; }
+    const json = JSON.stringify({ version: 1, exported: new Date().toISOString(), records: data }, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `genkinate-backup-${dateKey(today)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`📥 ${count}件のデータをダウンロードしました`);
+}
+
+// ── インポート（読み込み） ──
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const json    = JSON.parse(e.target.result);
+            const records = json.records || json; // バージョン1形式とダイレクト形式の両対応
+            const current = loadData();
+            const merged  = { ...current, ...records }; // 既存データに上書きマージ
+            saveData(merged);
+            const count = Object.keys(records).length;
+            showToast(`📤 ${count}件のデータを読み込みました 💓`);
+            renderCurrentView();
+            showCheerMsg();
+        } catch {
+            showToast('読み込みに失敗したよ。ファイルを確認してね');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = ''; // 同じファイルを再選択できるようにリセット
+}
+
+let currentTab = 'week';
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        b.classList.toggle('active', ['week','month','year'][i] === tab);
+    });
+    ['week','month','year'].forEach(t => {
+        document.getElementById(`view-${t}`).style.display = t === tab ? 'block' : 'none';
+    });
+    renderCurrentView();
+}
+function renderCurrentView() {
+    if      (currentTab === 'week')  renderWeek();
+    else if (currentTab === 'month') renderMonth();
+    else                             renderYear();
+}
+
+let weekOffset = 0;
+function changeWeek(d) { weekOffset += d; renderWeek(); }
+function weekStartDate(offset) {
+    const d = new Date(today), dow = (today.getDay() + 6) % 7;
+    d.setDate(today.getDate() - dow + offset * 7);
+    return d;
+}
+function renderWeek() {
+    const data = loadData();
+    const ws   = weekStartDate(weekOffset);
+    const we   = new Date(ws); we.setDate(we.getDate() + 6);
+    document.getElementById('weekLabel').textContent =
+        `${ws.getMonth()+1}/${ws.getDate()} ～ ${we.getMonth()+1}/${we.getDate()}`;
+    let mSum=0, mCnt=0, pSum=0, pCnt=0, jTotal=0;
+    const entries = [];
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(ws); d.setDate(d.getDate() + i);
+        const k = dateKey(d), e = data[k];
+        entries.push({ label: WEEK_DAYS[i], date: d, e });
+        if (e) { mSum+=e.mood; mCnt++; pSum+=e.pain; pCnt++; jTotal+=(e.joints||[]).length; }
+    }
+    document.getElementById('weekStats').innerHTML = `
+        <div class="stat-card"><div class="stat-emo">${mCnt ? MOOD_EMO[Math.round(mSum/mCnt)] : '📊'}</div><div class="stat-val">${mCnt ? (mSum/mCnt).toFixed(1) : '-'}</div><div class="stat-lbl">平均ご機嫌</div></div>
+        <div class="stat-card"><div class="stat-emo">💊</div><div class="stat-val">${pCnt ? (pSum/pCnt).toFixed(1) : '-'}</div><div class="stat-lbl">平均痛み度</div></div>
+        <div class="stat-card"><div class="stat-emo">🦴</div><div class="stat-val">${jTotal}</div><div class="stat-lbl">延べ痛み部位</div></div>`;
+    document.getElementById('weekGrid').innerHTML = entries.map(({label, date, e}) => {
+        const isToday = dateKey(date) === dateKey(today);
+        const bStyle  = e ? `background:${MOOD_COLOR[e.mood]}88; border-color:${MOOD_COLOR[e.mood]};` : (isToday ? 'border-color:#f472b6;' : '');
+        const tip = e ? `${MOOD_LABEL[e.mood]}／痛み${e.pain}${(e.joints||[]).length ? '／'+(e.joints||[]).map(id=>JOINTS.find(j=>j.id===id)?.label||id).join('・') : ''}` : '';
+        return `<div class="day-cell" title="${tip}">
+            <div class="day-lbl" style="color:${isToday?'var(--accent)':'var(--muted)'}">${label}</div>
+            <div class="day-bubble ${e?'has-data':''}" style="${bStyle}${isToday?'border-width:2.5px;':''}">
+                ${e ? MOOD_EMO[e.mood] : (isToday ? '✏️' : '')}
+            </div>
+            <div class="pain-dot" style="background:${e ? painColor(e.pain) : 'var(--border)'}; margin:0 auto;"></div>
+        </div>`;
+    }).join('');
+    document.getElementById('weekPainChart').innerHTML = entries.map(({label, e}) => {
+        const v = e ? e.pain : 0, pct = e ? Math.max(5, v/10*100) : 0;
+        return `<div class="bar-item"><div class="bar-fill" style="height:${pct}%; background:${e ? painColor(v) : 'var(--border)'};"></div><div class="bar-lbl">${label}</div></div>`;
+    }).join('');
+}
+
+let monthOffset = 0;
+function changeMonth(d) { monthOffset += d; renderMonth(); }
+function renderMonth() {
+    const data  = loadData();
+    const base  = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+    const year  = base.getFullYear(), month = base.getMonth();
+    const dim   = new Date(year, month+1, 0).getDate();
+    const offset = (new Date(year, month, 1).getDay() + 6) % 7;
+    document.getElementById('monthLabel').textContent = `${year}年${month+1}月`;
+    let mSum=0, mCnt=0, pSum=0, pCnt=0, jTotal=0;
+    for (let d=1; d<=dim; d++) {
+        const k = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const e = data[k];
+        if (e) { mSum+=e.mood; mCnt++; pSum+=e.pain; pCnt++; jTotal+=(e.joints||[]).length; }
+    }
+    document.getElementById('monthStats').innerHTML = `
+        <div class="stat-card"><div class="stat-emo">${mCnt ? MOOD_EMO[Math.round(mSum/mCnt)] : '📊'}</div><div class="stat-val">${mCnt ? (mSum/mCnt).toFixed(1) : '-'}</div><div class="stat-lbl">平均ご機嫌</div></div>
+        <div class="stat-card"><div class="stat-emo">💊</div><div class="stat-val">${pCnt ? (pSum/pCnt).toFixed(1) : '-'}</div><div class="stat-lbl">平均痛み度</div></div>
+        <div class="stat-card"><div class="stat-emo">🦴</div><div class="stat-val">${jTotal}</div><div class="stat-lbl">延べ痛み部位</div></div>`;
+    let html = WEEK_DAYS.map(h => `<div class="cal-hdr">${h}</div>`).join('');
+    for (let i=0; i<offset; i++) html += `<div class="cal-day empty"></div>`;
+    for (let d=1; d<=dim; d++) {
+        const k = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const e = data[k], isT = k === dateKey(today);
+        const tip = e ? `${MOOD_LABEL[e.mood]}／痛み${e.pain}${(e.joints||[]).length ? '／'+(e.joints||[]).map(id=>JOINTS.find(j=>j.id===id)?.label||id).join('・') : ''}` : '';
+        html += `<div class="cal-day ${isT?'today-mark':''}" style="${e ? `background:${MOOD_COLOR[e.mood]}88;` : ''}" title="${tip}">
+            <span class="dn" style="color:${isT?'var(--accent)':'var(--muted)'}">${d}</span>
+            <span class="mm">${e ? MOOD_EMO[e.mood] : ''}</span>
+        </div>`;
+    }
+    document.getElementById('monthCal').innerHTML = html;
+}
+
+let yearOffset = 0;
+function changeYear(d) { yearOffset += d; renderYear(); }
+function renderYear() {
+    const data = loadData();
+    const year = today.getFullYear() + yearOffset;
+    document.getElementById('yearLabel').textContent = `${year}年`;
+    let mSum=0, mCnt=0, pSum=0, pCnt=0;
+    for (const k in data) {
+        if (k.startsWith(`${year}-`)) { mSum+=data[k].mood; mCnt++; pSum+=data[k].pain; pCnt++; }
+    }
+    document.getElementById('yearStats').innerHTML = `
+        <div class="stat-card"><div class="stat-emo">${mCnt ? MOOD_EMO[Math.round(mSum/mCnt)] : '📊'}</div><div class="stat-val">${mCnt ? (mSum/mCnt).toFixed(1) : '-'}</div><div class="stat-lbl">年間平均ご機嫌</div></div>
+        <div class="stat-card"><div class="stat-emo">💊</div><div class="stat-val">${pCnt ? (pSum/pCnt).toFixed(1) : '-'}</div><div class="stat-lbl">年間平均痛み</div></div>
+        <div class="stat-card"><div class="stat-emo">📝</div><div class="stat-val">${mCnt}</div><div class="stat-lbl">記録日数</div></div>`;
+    let html = '';
+    for (let m=0; m<12; m++) {
+        const dim = new Date(year, m+1, 0).getDate();
+        const off = (new Date(year, m, 1).getDay() + 6) % 7;
+        html += `<div><div class="hm-month-lbl">${MONTH_NAMES[m]}</div><div class="hm-grid">`;
+        for (let s=0; s<off; s++) html += `<div></div>`;
+        for (let d=1; d<=dim; d++) {
+            const k = `${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const e = data[k], isT = k === dateKey(today);
+            html += `<div class="hm-cell" style="background:${e ? MOOD_COLOR[e.mood] : 'var(--border)'};${isT?'outline:2px solid #f472b6;outline-offset:1px;':''}" title="${e ? `${m+1}/${d} ${MOOD_LABEL[e.mood]} 痛み:${e.pain}` : `${m+1}/${d}`}"></div>`;
+        }
+        html += `</div></div>`;
+    }
+    document.getElementById('yearHeatmap').innerHTML = html;
+    document.getElementById('yearLegend').innerHTML = `<div class="legend">
+        ${[1,2,3,4,5].map(i => `<span class="legend-item"><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:${MOOD_COLOR[i]};"></span>${MOOD_EMO[i]}</span>`).join('')}
+        <span class="legend-item"><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:var(--border);"></span>未記録</span>
+    </div>`;
+}
+
+// ── Service Worker 登録 ──
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+}
+
+buildJointSvg();
+loadTodayData();
+showCheerMsg();
+renderWeek();
+</script>
+</body>
+</html>
