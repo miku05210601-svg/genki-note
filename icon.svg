@@ -1,5 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 背景 -->
   <rect width="512" height="512" rx="112" fill="#fff0f5"/>
-  <path d="M256,390 C256,390 100,296 100,185 C100,140 133,108 175,112 C203,115 228,133 256,165 C284,133 309,115 337,112 C379,108 412,140 412,185 C412,296 256,390 256,390Z" fill="#f472b6"/>
-  <path d="M256,345 C256,345 130,268 130,175 C130,142 155,118 185,122 C208,125 230,140 256,168 C282,140 304,125 327,122 C357,118 382,142 382,175 C382,268 256,345 256,345Z" fill="#fb7dc4" opacity="0.4"/>
+
+  <!-- ノートの影 -->
+  <rect x="132" y="96" width="264" height="328" rx="22" fill="#f9a8d4" opacity="0.5"/>
+
+  <!-- ノートのページ（白） -->
+  <rect x="124" y="88" width="264" height="328" rx="22" fill="white"/>
+
+  <!-- ピンクのスパイン（背表紙） -->
+  <rect x="124" y="88" width="76" height="328" rx="22" fill="#f472b6"/>
+  <rect x="176" y="88" width="24" height="328" fill="#f472b6"/>
+
+  <!-- スパインのハイライト -->
+  <rect x="132" y="88" width="14" height="328" rx="7" fill="#fb7dc4" opacity="0.45"/>
+
+  <!-- リング綴じ（3個） -->
+  <circle cx="200" cy="152" r="18" fill="white" stroke="#fce7f3" stroke-width="3"/>
+  <circle cx="200" cy="256" r="18" fill="white" stroke="#fce7f3" stroke-width="3"/>
+  <circle cx="200" cy="360" r="18" fill="white" stroke="#fce7f3" stroke-width="3"/>
+
+  <!-- ページの横線 -->
+  <line x1="222" y1="195" x2="364" y2="195" stroke="#fce7f3" stroke-width="10" stroke-linecap="round"/>
+  <line x1="222" y1="330" x2="364" y2="330" stroke="#fce7f3" stroke-width="10" stroke-linecap="round"/>
+  <line x1="222" y1="362" x2="364" y2="362" stroke="#fce7f3" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- ハート（ページ中央） -->
+  <path d="M290,305 C290,305 212,255 212,200 C212,172 233,153 257,156 C271,158 283,169 290,183 C297,169 309,158 323,156 C347,153 368,172 368,200 C368,255 290,305 290,305Z" fill="#f472b6"/>
+  <!-- ハートのハイライト -->
+  <path d="M290,270 C290,270 240,240 240,210 C240,196 250,187 262,189 C270,190 278,196 290,208 C302,196 310,190 318,189 C330,187 340,196 340,210 C340,240 290,270 290,270Z" fill="#fb7dc4" opacity="0.35"/>
 </svg>
