@@ -274,6 +274,33 @@
         .backup-btn.import-btn:hover { background: #ffe4f1; border-color: #f472b6; }
         .backup-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.6; }
 
+        /* ── 過去日編集モーダル ── */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(255,220,238,0.84);
+            z-index: 1000; display: flex; align-items: flex-start; justify-content: center;
+            padding: 20px 14px 40px; overflow-y: auto; backdrop-filter: blur(4px);
+        }
+        .modal-card {
+            background: var(--surface); border-radius: 24px; padding: 20px 18px;
+            width: 100%; max-width: 448px; box-shadow: 0 8px 40px rgba(232,101,154,.3);
+            border: 1.5px solid var(--border);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .modal-date-title { font-size: 14px; font-weight: 800; color: var(--accent); }
+        .modal-close {
+            background: var(--surface2); border: 1.5px solid var(--border);
+            border-radius: 50%; width: 34px; height: 34px; font-size: 14px;
+            cursor: pointer; color: var(--muted); font-family: inherit;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .modal-close:hover { background: #ffe4f1; color: #e11d8b; border-color: #f472b6; }
+        .day-cell { cursor: pointer; }
+        .day-cell:hover .day-bubble { border-color: #f472b6; }
+        .cal-day { cursor: pointer; }
+
         @media (max-width: 400px) {
             .mood-btn .emo { font-size: 22px; }
             .day-bubble { width: 32px; height: 32px; font-size: 17px; }
@@ -423,6 +450,80 @@
         機種変更のときは「ダウンロード」でファイルを保存し、<br>
         新しいスマホで「読み込む」を使うとデータが引き継げます 💓
     </p>
+</div>
+
+<!-- 過去日編集モーダル -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeDateModal()" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-date-title" id="modalDateTitle">📅</div>
+      <button class="modal-close" onclick="closeDateModal()">✕</button>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="section-lbl">😊 ご機嫌は？</div>
+      <div class="mood-selector">
+        <button class="mood-btn m-mood-btn" data-mood="1" onclick="mSelectMood(1)"><span class="emo">😔</span><span>つらい</span></button>
+        <button class="mood-btn m-mood-btn" data-mood="2" onclick="mSelectMood(2)"><span class="emo">😕</span><span>いまいち</span></button>
+        <button class="mood-btn m-mood-btn" data-mood="3" onclick="mSelectMood(3)"><span class="emo">😊</span><span>ふつう</span></button>
+        <button class="mood-btn m-mood-btn" data-mood="4" onclick="mSelectMood(4)"><span class="emo">😄</span><span>よい</span></button>
+        <button class="mood-btn m-mood-btn" data-mood="5" onclick="mSelectMood(5)"><span class="emo">🥰</span><span>最高！</span></button>
+      </div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="section-lbl">🦴 痛んだ関節は？<span style="font-size:10px;font-weight:400;">（タップして記録）</span></div>
+      <div class="body-map-section">
+        <svg id="mBodySvg" viewBox="-12 0 224 420" width="200" style="overflow:visible; display:block;">
+          <line x1="68" y1="82" x2="46" y2="134" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
+          <line x1="46" y1="134" x2="40" y2="185" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
+          <line x1="40" y1="185" x2="34" y2="214" stroke="#ffd6e8" stroke-width="9"  stroke-linecap="round"/>
+          <ellipse cx="31" cy="221" rx="8" ry="5.5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
+          <line x1="132" y1="82" x2="154" y2="134" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
+          <line x1="154" y1="134" x2="160" y2="185" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
+          <line x1="160" y1="185" x2="166" y2="214" stroke="#ffd6e8" stroke-width="9"  stroke-linecap="round"/>
+          <ellipse cx="169" cy="221" rx="8" ry="5.5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
+          <line x1="84"  y1="224" x2="83"  y2="298" stroke="#ffd6e8" stroke-width="15" stroke-linecap="round"/>
+          <line x1="83"  y1="298" x2="81"  y2="360" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
+          <line x1="81"  y1="360" x2="74"  y2="388" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
+          <ellipse cx="70" cy="395" rx="10" ry="5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
+          <line x1="116" y1="224" x2="117" y2="298" stroke="#ffd6e8" stroke-width="15" stroke-linecap="round"/>
+          <line x1="117" y1="298" x2="119" y2="360" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
+          <line x1="119" y1="360" x2="126" y2="388" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
+          <ellipse cx="130" cy="395" rx="10" ry="5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
+          <rect x="63" y="69" width="74" height="160" rx="14" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
+          <rect x="91" y="52" width="18" height="21" rx="6" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
+          <circle cx="100" cy="30" r="23" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
+          <ellipse cx="87"  cy="36" rx="6" ry="4" fill="#f9a8d4" opacity="0.45"/>
+          <ellipse cx="113" cy="36" rx="6" ry="4" fill="#f9a8d4" opacity="0.45"/>
+          <circle cx="93"  cy="26" r="2.5" fill="#c44e7e"/>
+          <circle cx="107" cy="26" r="2.5" fill="#c44e7e"/>
+          <path d="M91,23 Q93,21 95,23" fill="none" stroke="#c44e7e" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M105,23 Q107,21 109,23" fill="none" stroke="#c44e7e" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M94,35 Q100,41 106,35" fill="none" stroke="#e8659a" stroke-width="1.8" stroke-linecap="round"/>
+          <text x="8"   y="189" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">手首</text>
+          <text x="11"  y="218" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">指</text>
+          <text x="192" y="189" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">手首</text>
+          <text x="189" y="218" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">指</text>
+          <text x="16"  y="108" font-size="14" fill="#e8659a" font-weight="bold" text-anchor="middle" font-family="sans-serif">左</text>
+          <text x="184" y="108" font-size="14" fill="#e8659a" font-weight="bold" text-anchor="middle" font-family="sans-serif">右</text>
+          <g id="mJointLayer"></g>
+        </svg>
+        <div class="joint-tags" id="mJointTags"><span class="jtag-none">タップして選択</span></div>
+        <button class="clear-btn" onclick="mClearJoints()">✕ クリア</button>
+      </div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="section-lbl">💊 痛みの強さ（0＝なし　10＝激痛）</div>
+      <div class="pain-row">
+        <span class="pain-val-sm" id="mPainDisplay">😌 0</span>
+        <input type="range" class="pain-slider" id="mPainSlider" min="0" max="10" value="0" oninput="mUpdatePain(this.value)">
+      </div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="section-lbl">📝 メモ（任意）</div>
+      <textarea class="memo-input" id="mMemoInput" rows="2" placeholder="その日の調子・気づきなど..."></textarea>
+    </div>
+    <button class="save-btn" onclick="saveModalRecord()">💓 記録を保存する</button>
+  </div>
 </div>
 
 <div class="toast" id="toast">💓 記録しました！</div>
@@ -677,7 +778,7 @@ function renderWeek() {
         const isToday = dateKey(date) === dateKey(today);
         const bStyle  = e ? `background:${MOOD_COLOR[e.mood]}88; border-color:${MOOD_COLOR[e.mood]};` : (isToday ? 'border-color:#f472b6;' : '');
         const tip = e ? `${MOOD_LABEL[e.mood]}／痛み${e.pain}${(e.joints||[]).length ? '／'+(e.joints||[]).map(id=>JOINTS.find(j=>j.id===id)?.label||id).join('・') : ''}` : '';
-        return `<div class="day-cell" title="${tip}">
+        return `<div class="day-cell" onclick="openDateModal('${dateKey(date)}')" title="${tip}">
             <div class="day-lbl" style="color:${isToday?'var(--accent)':'var(--muted)'}">${label}</div>
             <div class="day-bubble ${e?'has-data':''}" style="${bStyle}${isToday?'border-width:2.5px;':''}">
                 ${e ? MOOD_EMO[e.mood] : (isToday ? '✏️' : '')}
@@ -716,7 +817,7 @@ function renderMonth() {
         const k = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const e = data[k], isT = k === dateKey(today);
         const tip = e ? `${MOOD_LABEL[e.mood]}／痛み${e.pain}${(e.joints||[]).length ? '／'+(e.joints||[]).map(id=>JOINTS.find(j=>j.id===id)?.label||id).join('・') : ''}` : '';
-        html += `<div class="cal-day ${isT?'today-mark':''}" style="${e ? `background:${MOOD_COLOR[e.mood]}88;` : ''}" title="${tip}">
+        html += `<div class="cal-day ${isT?'today-mark':''}" style="${e ? `background:${MOOD_COLOR[e.mood]}88;` : ''}" title="${tip}" onclick="openDateModal('${k}')">
             <span class="dn" style="color:${isT?'var(--accent)':'var(--muted)'}">${d}</span>
             <span class="mm">${e ? MOOD_EMO[e.mood] : ''}</span>
         </div>`;
@@ -758,6 +859,102 @@ function renderYear() {
     </div>`;
 }
 
+// ── 過去日編集モーダル ──
+let modalDateKey = null;
+let modalMood    = null;
+let modalPain    = 0;
+let modalJoints  = new Set();
+
+function buildJointSvgModal() {
+    document.getElementById('mJointLayer').innerHTML = JOINTS.map(j => `
+        <g class="jg" id="mjg-${j.id}" onclick="mToggleJoint('${j.id}')" role="button" aria-label="${j.label}">
+            <circle class="jhit" cx="${j.cx}" cy="${j.cy}" r="14"/>
+            <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="7"/>
+        </g>`).join('');
+}
+
+function openDateModal(key) {
+    modalDateKey = key;
+    const rec    = loadData()[key] || null;
+    modalMood    = rec ? rec.mood       : null;
+    modalPain    = rec ? (rec.pain || 0): 0;
+    modalJoints  = new Set(rec ? (rec.joints || []) : []);
+
+    const [y, m, d] = key.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    const DN = ['日','月','火','水','木','金','土'];
+    document.getElementById('modalDateTitle').textContent =
+        `${y}年${m}月${d}日（${DN[dt.getDay()]}）のきろく`;
+
+    document.querySelectorAll('.m-mood-btn').forEach(b => {
+        b.classList.toggle('selected', parseInt(b.dataset.mood) === modalMood);
+    });
+    document.getElementById('mPainSlider').value = modalPain;
+    mUpdatePain(modalPain);
+    document.getElementById('mMemoInput').value = rec ? (rec.memo || '') : '';
+    mRefreshJointUI();
+
+    document.getElementById('modalOverlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDateModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function mSelectMood(val) {
+    modalMood = val;
+    document.querySelectorAll('.m-mood-btn').forEach(b => {
+        b.classList.toggle('selected', parseInt(b.dataset.mood) === val);
+    });
+}
+
+function mUpdatePain(val) {
+    modalPain = parseInt(val);
+    const v   = modalPain;
+    document.getElementById('mPainDisplay').innerHTML =
+        `<span style="color:${PAIN_COL[v]}">${PAIN_EMO[v]}</span> ` +
+        `<span style="color:${PAIN_COL[v]};font-size:22px;">${v}</span>`;
+}
+
+function mToggleJoint(id) {
+    modalJoints.has(id) ? modalJoints.delete(id) : modalJoints.add(id);
+    mRefreshJointUI();
+}
+function mClearJoints() { modalJoints.clear(); mRefreshJointUI(); }
+
+function mRefreshJointUI() {
+    JOINTS.forEach(j => {
+        const g = document.getElementById(`mjg-${j.id}`);
+        if (g) g.classList.toggle('on', modalJoints.has(j.id));
+    });
+    const tagsEl = document.getElementById('mJointTags');
+    if (modalJoints.size === 0) {
+        tagsEl.innerHTML = '<span class="jtag-none">タップして選択</span>';
+    } else {
+        tagsEl.innerHTML = JOINTS.filter(j => modalJoints.has(j.id))
+            .map(j => `<span class="jtag" onclick="mToggleJoint('${j.id}')">${j.label} ✕</span>`)
+            .join('');
+    }
+}
+
+function saveModalRecord() {
+    if (!modalMood) { alert('ご機嫌度を選んでね 💓'); return; }
+    const data = loadData();
+    data[modalDateKey] = {
+        mood: modalMood, pain: modalPain,
+        joints: [...modalJoints],
+        memo: document.getElementById('mMemoInput').value.trim(),
+        time: new Date().toISOString(),
+    };
+    saveData(data);
+    showToast('💓 記録を保存したよ！');
+    closeDateModal();
+    renderCurrentView();
+    if (modalDateKey === dateKey(today)) { loadTodayData(); showCheerMsg(); }
+}
+
 // ── Service Worker 登録 ──
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -766,6 +963,7 @@ if ('serviceWorker' in navigator) {
 }
 
 buildJointSvg();
+buildJointSvgModal();
 loadTodayData();
 showCheerMsg();
 renderWeek();
