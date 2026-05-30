@@ -4,61 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ご機嫌ノート 💓</title>
-
-    <!-- PWA設定 -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#f472b6">
-    <!-- iOS向け -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="ご機嫌ノート">
     <link rel="apple-touch-icon" href="./icon.svg">
-
     <style>
         :root {
-            --bg:       #fff6f9;
-            --surface:  #ffffff;
-            --surface2: #fff0f5;
-            --border:   #ffd6e8;
-            --accent:   #e8659a;
-            --text:     #5c2e42;
-            --muted:    #c4849a;
-            --shadow:   rgba(232, 101, 154, 0.15);
+            --bg:      #fff6f9;
+            --surface: #ffffff;
+            --sf2:     #fff0f5;
+            --border:  #ffd6e8;
+            --accent:  #e8659a;
+            --text:    #5c2e42;
+            --muted:   #c4849a;
+            --shadow:  rgba(232,101,154,0.15);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
-            font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'メイリオ', sans-serif;
+            font-family: 'Hiragino Kaku Gothic ProN','Noto Sans JP','メイリオ',sans-serif;
             background: var(--bg);
             background-image:
-                radial-gradient(ellipse at 15% 10%, rgba(255,182,215,0.28) 0%, transparent 55%),
-                radial-gradient(ellipse at 85% 75%, rgba(255,200,230,0.22) 0%, transparent 55%);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 16px 14px 90px;
-            max-width: 480px;
-            margin: 0 auto;
+                radial-gradient(ellipse at 15% 10%, rgba(255,182,215,.28) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 75%, rgba(255,200,230,.22) 0%, transparent 55%);
+            color: var(--text); min-height: 100vh;
+            padding: 16px 14px 90px; max-width: 480px; margin: 0 auto;
         }
 
-        .header { text-align: center; padding: 22px 0 18px; }
-        .header .mascot {
+        /* ── ヘッダー ── */
+        .header { text-align: center; padding: 22px 0 14px; }
+        .mascot {
             font-size: 54px; display: block; margin-bottom: 6px;
             animation: float 3.5s ease-in-out infinite;
-            filter: drop-shadow(0 4px 14px rgba(255,150,190,0.55));
+            filter: drop-shadow(0 4px 14px rgba(255,150,190,.55));
         }
         @keyframes float {
             0%,100% { transform: translateY(0) rotate(-3deg); }
-            50%     { transform: translateY(-8px) rotate(3deg); }
+            50%      { transform: translateY(-8px) rotate(3deg); }
         }
         .header h1 {
             font-size: 24px; font-weight: 900;
-            background: linear-gradient(135deg, #f472b6, #e11d8b);
+            background: linear-gradient(135deg,#f472b6,#e11d8b);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text; letter-spacing: 0.07em;
+            background-clip: text; letter-spacing: .07em;
         }
         .header .subtitle { font-size: 12px; color: var(--muted); margin-top: 5px; }
-        .header .tagline  { font-size: 10px; color: rgba(244,114,182,0.55); margin-top: 3px; letter-spacing: 0.03em; }
+        .header .tagline  { font-size: 10px; color: rgba(244,114,182,.55); margin-top: 3px; }
+        .streak-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: linear-gradient(135deg,#fff0f8,#ffe4f1);
+            border: 1.5px solid #ffc6df; border-radius: 20px;
+            padding: 5px 15px; margin-top: 10px;
+            font-size: 13px; font-weight: 800; color: #c44e7e;
+        }
 
+        /* ── カード共通 ── */
         .card {
             background: var(--surface); border-radius: 24px; padding: 20px 18px;
             margin-bottom: 14px; box-shadow: 0 4px 26px var(--shadow);
@@ -70,33 +71,34 @@
         }
         .today-date {
             text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 16px;
-            background: var(--surface2); border-radius: 12px; padding: 7px;
-            border: 1px solid var(--border);
+            background: var(--sf2); border-radius: 12px; padding: 7px; border: 1px solid var(--border);
+        }
+        .section-lbl {
+            font-size: 12px; color: var(--muted); font-weight: 700;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 7px;
         }
 
-        .mood-selector { display: flex; justify-content: space-between; gap: 6px; }
-        .mood-btn {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
-            padding: 11px 2px; border: 2px solid var(--border); border-radius: 18px;
-            background: var(--surface2); cursor: pointer;
-            transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
-            font-size: 10px; color: var(--muted); font-family: inherit;
+        /* ── 5段階ボタン（ご機嫌・体調・痛み共通） ── */
+        .level-row { display: flex; justify-content: space-between; gap: 5px; }
+        .level-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            padding: 10px 2px; border: 2px solid var(--border); border-radius: 16px;
+            background: var(--sf2); cursor: pointer;
+            transition: all .2s cubic-bezier(.34,1.56,.64,1);
+            font-size: 9px; color: var(--muted); font-family: inherit;
         }
-        .mood-btn .emo { font-size: 27px; line-height: 1; }
-        .mood-btn:hover { border-color: var(--accent); transform: translateY(-3px); }
-        .mood-btn.selected {
-            border-color: #f472b6; background: linear-gradient(160deg,#fff0f8,#ffe4f1); color:#e11d8b;
-            transform: translateY(-5px) scale(1.06); box-shadow: 0 7px 18px rgba(232,101,154,.3);
+        .level-btn .emo { font-size: 26px; line-height: 1; }
+        .level-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .level-btn.sel {
+            border-color: #f472b6; background: linear-gradient(160deg,#fff0f8,#ffe4f1);
+            color: #e11d8b; transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 6px 16px rgba(232,101,154,.3);
         }
 
+        /* ── 関節マップ ── */
         .body-map-section { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .body-map-hint { font-size: 11px; color: var(--muted); }
-
         .jg { cursor: pointer; }
-        .jg .jvis {
-            fill: white; stroke: #ffb3d1; stroke-width: 2.2;
-            transition: fill 0.18s, stroke 0.18s, filter 0.18s;
-        }
+        .jg .jvis { fill: white; stroke: #ffb3d1; stroke-width: 2.2; transition: fill .18s, stroke .18s; }
         .jg:hover .jvis { fill: #ffe4f1; stroke: #f472b6; }
         .jg.on .jvis {
             fill: #f472b6; stroke: #e11d8b;
@@ -104,179 +106,244 @@
             animation: jbeat 1.4s ease-in-out infinite;
             transform-box: fill-box; transform-origin: center;
         }
-        @keyframes jbeat {
-            0%,100% { transform: scale(1);   }
-            50%     { transform: scale(1.3); }
-        }
+        @keyframes jbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
         .jhit { fill: transparent; }
-
         .joint-tags {
             display: flex; flex-wrap: wrap; gap: 5px;
             justify-content: center; min-height: 26px; padding: 0 4px;
         }
         .jtag {
             background: #ffe4f1; border: 1.5px solid #f472b6; color: #e11d8b;
-            border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700;
-            cursor: pointer; transition: background 0.15s;
+            border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
         }
         .jtag:hover { background: #ffc6df; }
         .jtag-none { font-size: 11px; color: var(--muted); }
         .clear-btn {
-            background: transparent; border: 1px solid var(--border);
-            border-radius: 10px; padding: 4px 14px; font-size: 11px;
-            color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.15s;
+            background: transparent; border: 1px solid var(--border); border-radius: 10px;
+            padding: 4px 14px; font-size: 11px; color: var(--muted); cursor: pointer;
+            font-family: inherit; transition: all .15s;
         }
         .clear-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-        .pain-row { display: flex; align-items: center; gap: 10px; }
-        .pain-val-sm { font-size: 20px; font-weight: 800; min-width: 44px; text-align: center; }
-        .pain-slider {
-            flex: 1; height: 7px; -webkit-appearance: none; appearance: none;
-            background: linear-gradient(to right, #86efac 0%, #fcd34d 50%, #f87171 100%);
-            border-radius: 4px; outline: none;
-        }
-        .pain-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
-            background: white; border: 3px solid #f472b6; cursor: pointer;
-            box-shadow: 0 2px 8px var(--shadow); transition: transform 0.2s;
-        }
-        .pain-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
-
-        .memo-input {
+        /* ── 薬・メモ入力 ── */
+        .text-input {
             width: 100%; border: 1.5px solid var(--border); border-radius: 14px;
             padding: 10px 13px; font-size: 13px; color: var(--text);
-            background: var(--surface2); resize: none; outline: none;
-            font-family: inherit; transition: border-color 0.2s;
+            background: var(--sf2); outline: none; font-family: inherit;
+            transition: border-color .2s; resize: none;
         }
-        .memo-input:focus { border-color: #f472b6; }
-        .memo-input::placeholder { color: #e4b0c6; }
+        .text-input:focus { border-color: #f472b6; }
+        .text-input::placeholder { color: #e4b0c6; }
 
+        /* ── 保存ボタン ── */
         .save-btn {
             width: 100%; padding: 15px;
-            background: linear-gradient(135deg, #f472b6, #e11d8b);
+            background: linear-gradient(135deg,#f472b6,#e11d8b);
             color: white; border: none; border-radius: 18px; font-size: 15px;
-            font-weight: 800; cursor: pointer; transition: all 0.2s;
-            letter-spacing: 0.06em; box-shadow: 0 5px 20px rgba(232,101,154,.45);
+            font-weight: 800; cursor: pointer; transition: all .2s;
+            letter-spacing: .06em; box-shadow: 0 5px 20px rgba(232,101,154,.45);
             font-family: inherit;
         }
         .save-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(232,101,154,.55); }
         .save-btn:active { transform: translateY(0); }
 
+        /* ── ほめほめ オーバーレイ ── */
+        .horehore-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(255,240,248,.96); backdrop-filter: blur(8px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px 28px; text-align: center;
+            opacity: 0; pointer-events: none; transition: opacity .4s ease;
+        }
+        .horehore-overlay.show { opacity: 1; pointer-events: auto; }
+        .horehore-big-emoji {
+            font-size: 80px; margin-bottom: 18px;
+            animation: hoFloat 2s ease-in-out infinite;
+        }
+        @keyframes hoFloat {
+            0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-14px) scale(1.06)}
+        }
+        .horehore-msg {
+            font-size: 22px; font-weight: 900; line-height: 1.55; margin-bottom: 14px;
+            background: linear-gradient(135deg,#f472b6,#e11d8b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .horehore-streak { font-size: 15px; color: #c44e7e; font-weight: 700; margin-bottom: 22px; }
+        .horehore-tap    { font-size: 12px; color: #f9a8d4; }
+
+        /* ── トースト ── */
         .toast {
             position: fixed; bottom: 74px; left: 50%;
             transform: translateX(-50%) translateY(16px);
-            background: linear-gradient(135deg, #f472b6, #e11d8b);
+            background: linear-gradient(135deg,#f472b6,#e11d8b);
             color: white; padding: 12px 28px; border-radius: 24px; font-size: 13px;
-            font-weight: 700; opacity: 0; transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+            font-weight: 700; opacity: 0; transition: all .3s cubic-bezier(.34,1.56,.64,1);
             z-index: 200; white-space: nowrap; box-shadow: 0 4px 18px rgba(232,101,154,.4);
             pointer-events: none;
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+        /* ── タブ ── */
         .tab-nav {
             display: flex; background: var(--surface); border-radius: 18px;
             padding: 4px; gap: 4px; margin-bottom: 14px;
             box-shadow: 0 3px 14px var(--shadow); border: 1.5px solid var(--border);
         }
         .tab-btn {
-            flex: 1; padding: 9px 4px; border: none; border-radius: 13px;
-            background: transparent; color: var(--muted); font-size: 12px;
-            font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit;
+            flex: 1; padding: 8px 2px; border: none; border-radius: 13px;
+            background: transparent; color: var(--muted); font-size: 10px;
+            font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit;
         }
         .tab-btn.active {
-            background: linear-gradient(135deg, #f472b6, #e11d8b);
+            background: linear-gradient(135deg,#f472b6,#e11d8b);
             color: white; box-shadow: 0 3px 10px rgba(232,101,154,.35);
         }
 
+        /* ── ナビ行 ── */
         .nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .nav-btn {
-            background: var(--surface2); border: 1.5px solid var(--border); border-radius: 11px;
-            padding: 6px 16px; font-size: 20px; cursor: pointer; transition: all 0.2s;
+            background: var(--sf2); border: 1.5px solid var(--border); border-radius: 11px;
+            padding: 6px 16px; font-size: 20px; cursor: pointer; transition: all .2s;
             color: var(--accent); line-height: 1; font-family: inherit;
         }
         .nav-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
         .period-label { font-size: 15px; font-weight: 800; color: var(--text); }
 
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; margin-bottom: 16px; }
+        /* ── 統計カード ── */
+        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; margin-bottom: 16px; }
         .stat-card {
-            background: linear-gradient(160deg, var(--surface2), #fff8fb); border-radius: 16px;
-            padding: 12px 6px; text-align: center; border: 1.5px solid var(--border);
+            background: linear-gradient(160deg,var(--sf2),#fff8fb); border-radius: 14px;
+            padding: 10px 4px; text-align: center; border: 1.5px solid var(--border);
         }
-        .stat-emo { font-size: 20px; line-height: 1.2; }
-        .stat-val { font-size: 23px; font-weight: 800; color: var(--accent); line-height: 1.1; }
-        .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; }
+        .stat-emo { font-size: 18px; line-height: 1.2; }
+        .stat-val { font-size: 20px; font-weight: 800; color: var(--accent); line-height: 1.1; }
+        .stat-lbl { font-size: 9px; color: var(--muted); margin-top: 2px; }
 
-        .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
-        .day-cell  { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        /* ── 週間グリッド ── */
+        .week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-bottom: 12px; }
+        .day-cell  { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+        .day-cell:hover .day-bubble { border-color: #f472b6; }
         .day-lbl   { font-size: 10px; color: var(--muted); font-weight: 700; }
         .day-bubble {
-            width: 38px; height: 38px; border-radius: 50%;
+            width: 36px; height: 36px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; background: var(--surface2); border: 2px solid var(--border);
+            font-size: 19px; background: var(--sf2); border: 2px solid var(--border);
         }
         .day-bubble.has-data { box-shadow: 0 3px 10px var(--shadow); }
-        .pain-dot { width: 9px; height: 9px; border-radius: 50%; }
+        .pain-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        .bar-chart { display: flex; align-items: flex-end; gap: 5px; height: 110px; }
-        .bar-item  { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
-        .bar-fill  { width: 100%; border-radius: 6px 6px 0 0; min-height: 3px; transition: height 0.4s ease; }
-        .bar-lbl   { font-size: 9px; color: var(--muted); }
+        /* ── 重ね合わせグラフ ── */
+        .chart-wrap { margin-bottom: 12px; }
+        .chart-legend {
+            display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+            font-size: 11px; color: var(--muted); margin-top: 6px;
+        }
+        .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 3px; }
 
-        .month-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        /* ── 棒グラフ ── */
+        .bar-chart { display: flex; align-items: flex-end; gap: 5px; height: 90px; }
+        .bar-item  { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; height:100%; justify-content:flex-end; }
+        .bar-fill  { width:100%; border-radius:5px 5px 0 0; min-height:2px; transition:height .4s; }
+        .bar-lbl   { font-size:9px; color:var(--muted); }
+
+        /* ── AIコメント ── */
+        .ai-comment {
+            background: linear-gradient(135deg,#fff0f8,#ffe4f1);
+            border: 1.5px solid #ffc6df; border-radius: 16px;
+            padding: 12px 16px; font-size: 12px; color: #c44e7e;
+            line-height: 1.75; margin-top: 12px;
+        }
+
+        /* ── 月間カレンダー ── */
+        .month-cal { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
         .cal-hdr { text-align: center; font-size: 10px; font-weight: 700; color: var(--muted); padding: 4px 0; }
         .cal-day {
             aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; background: var(--surface2);
-            border: 1.5px solid var(--border); transition: transform 0.15s;
+            align-items: center; justify-content: center; background: var(--sf2);
+            border: 1.5px solid var(--border); transition: transform .15s; cursor: pointer;
         }
         .cal-day:hover { transform: scale(1.08); }
         .cal-day .dn { font-size: 9px; color: var(--muted); line-height: 1; }
-        .cal-day .mm { font-size: 14px; line-height: 1; }
-        .cal-day.empty { background: transparent; border-color: transparent; }
+        .cal-day .mm { font-size: 13px; line-height: 1; }
+        .cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
         .cal-day.today-mark { border-color: #f472b6; border-width: 2px; }
 
+        /* ── 年間ヒートマップ ── */
         .heatmap-wrap { overflow-x: auto; padding-bottom: 6px; }
         .heatmap-inner { display: flex; gap: 7px; min-width: max-content; }
         .hm-month-lbl { font-size: 10px; color: var(--muted); text-align: center; margin-bottom: 4px; font-weight: 700; }
-        .hm-grid { display: grid; grid-template-columns: repeat(7, 13px); gap: 2px; }
-        .hm-cell { width: 13px; height: 13px; border-radius: 3px; background: var(--border); transition: transform 0.1s; }
+        .hm-grid { display: grid; grid-template-columns: repeat(7,13px); gap: 2px; }
+        .hm-cell { width:13px; height:13px; border-radius:3px; background:var(--border); transition:transform .1s; cursor:pointer; }
         .hm-cell:hover { transform: scale(1.5); }
+        .legend { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-top:12px; }
+        .legend-item { display:flex; align-items:center; gap:3px; }
 
-        .legend { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--muted); margin-top: 12px; }
-        .legend-item { display: flex; align-items: center; gap: 3px; }
-
-        .cheer-msg {
-            background: linear-gradient(135deg, #fff0f8, #ffe4f1);
-            border: 1.5px solid #ffc6df; border-radius: 18px; padding: 14px 18px;
-            font-size: 13px; text-align: center; color: #c44e7e; font-weight: 600;
-            margin-bottom: 14px; line-height: 1.7;
+        /* ── 薬歴タブ ── */
+        .med-add-btn {
+            width: 100%; padding: 11px; border: 2px dashed var(--border); border-radius: 14px;
+            background: transparent; color: var(--muted); font-size: 13px;
+            cursor: pointer; font-family: inherit; transition: all .2s; margin-bottom: 14px;
         }
-        .section-lbl {
-            font-size: 12px; color: var(--muted); font-weight: 700;
-            margin-bottom: 10px; display: flex; align-items: center; gap: 7px;
+        .med-add-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--sf2); }
+        .med-form {
+            background: var(--sf2); border-radius: 16px; padding: 14px;
+            margin-bottom: 14px; border: 1.5px solid var(--border); display: none;
         }
+        .med-form.open { display: block; }
+        .med-form input, .med-form select, .med-form textarea {
+            width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+            padding: 8px 12px; font-size: 13px; color: var(--text);
+            background: white; outline: none; font-family: inherit; margin-bottom: 8px;
+            transition: border-color .2s;
+        }
+        .med-form input:focus, .med-form select:focus, .med-form textarea:focus { border-color: #f472b6; }
+        .change-type-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+        .ct-btn {
+            padding: 5px 11px; border-radius: 12px; font-size: 11px; font-weight: 700;
+            border: 1.5px solid var(--border); background: white; cursor: pointer;
+            color: var(--muted); font-family: inherit; transition: all .15s;
+        }
+        .ct-btn.sel { background: linear-gradient(135deg,#f472b6,#e11d8b); color: white; border-color: transparent; }
+        .med-save-btn {
+            width: 100%; padding: 11px; border: none; border-radius: 13px;
+            background: linear-gradient(135deg,#f472b6,#e11d8b); color: white;
+            font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+        }
+        .med-timeline { display: flex; flex-direction: column; gap: 10px; }
+        .med-entry {
+            background: var(--sf2); border-radius: 14px; padding: 12px 14px;
+            border-left: 4px solid #f472b6;
+        }
+        .med-entry-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+        .med-entry-date { font-size: 10px; color: var(--muted); }
+        .med-entry-name { font-weight: 700; color: var(--text); font-size: 13px; }
+        .ct-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 8px;
+            font-size: 10px; font-weight: 700;
+        }
+        .med-entry-memo { font-size: 11px; color: var(--muted); margin-top: 3px; }
+        .med-empty { text-align: center; color: var(--muted); font-size: 12px; padding: 20px 0; }
 
-        /* ── バックアップカード ── */
+        /* ── バックアップ ── */
         .backup-row { display: flex; gap: 10px; }
         .backup-btn {
             flex: 1; padding: 12px 8px; border-radius: 14px; font-size: 13px;
-            font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit;
+            font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit;
             border: 1.5px solid var(--border);
         }
         .backup-btn.export {
-            background: linear-gradient(135deg, #f472b6, #e11d8b); color: white;
+            background: linear-gradient(135deg,#f472b6,#e11d8b); color: white;
             border-color: transparent; box-shadow: 0 3px 12px rgba(232,101,154,.35);
         }
-        .backup-btn.export:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(232,101,154,.45); }
-        .backup-btn.import-btn {
-            background: var(--surface2); color: var(--accent);
-        }
+        .backup-btn.export:hover { transform: translateY(-1px); }
+        .backup-btn.import-btn { background: var(--sf2); color: var(--accent); }
         .backup-btn.import-btn:hover { background: #ffe4f1; border-color: #f472b6; }
         .backup-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.6; }
 
         /* ── 過去日編集モーダル ── */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(255,220,238,0.84);
+            position: fixed; inset: 0; background: rgba(255,220,238,.84);
             z-index: 1000; display: flex; align-items: flex-start; justify-content: center;
             padding: 20px 14px 40px; overflow-y: auto; backdrop-filter: blur(4px);
         }
@@ -286,57 +353,73 @@
             border: 1.5px solid var(--border);
         }
         .modal-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 16px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
         }
         .modal-date-title { font-size: 14px; font-weight: 800; color: var(--accent); }
         .modal-close {
-            background: var(--surface2); border: 1.5px solid var(--border);
-            border-radius: 50%; width: 34px; height: 34px; font-size: 14px;
-            cursor: pointer; color: var(--muted); font-family: inherit;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            background: var(--sf2); border: 1.5px solid var(--border); border-radius: 50%;
+            width: 34px; height: 34px; font-size: 14px; cursor: pointer; color: var(--muted);
+            font-family: inherit; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .modal-close:hover { background: #ffe4f1; color: #e11d8b; border-color: #f472b6; }
-        .day-cell { cursor: pointer; }
-        .day-cell:hover .day-bubble { border-color: #f472b6; }
-        .cal-day { cursor: pointer; }
 
         @media (max-width: 400px) {
-            .mood-btn .emo { font-size: 22px; }
-            .day-bubble { width: 32px; height: 32px; font-size: 17px; }
+            .level-btn .emo { font-size: 21px; }
+            .day-bubble { width: 30px; height: 30px; font-size: 16px; }
+            .stats-row { grid-template-columns: repeat(2,1fr); }
         }
     </style>
 </head>
 <body>
 
+<!-- ヘッダー -->
 <div class="header">
     <span class="mascot">💓</span>
     <h1>ご機嫌ノート</h1>
-    <p class="subtitle">今日のご機嫌・痛みをこっそり記録しよう</p>
+    <p class="subtitle">今日のご機嫌・体調をこっそり記録しよう</p>
     <p class="tagline">リウマチさんの毎日をやさしく記録 💓</p>
+    <div class="streak-badge" id="streakBadge" style="display:none;"></div>
 </div>
 
-<div class="cheer-msg" id="cheerMsg">読み込み中...</div>
+<!-- ほめほめオーバーレイ -->
+<div class="horehore-overlay" id="horehoreOverlay" onclick="closeHorehore()">
+    <div class="horehore-big-emoji" id="horeEmoji">🌸</div>
+    <div class="horehore-msg" id="horeMsg">今日もえらい！</div>
+    <div class="horehore-streak" id="horeStreak"></div>
+    <div class="horehore-tap">タップで閉じる</div>
+</div>
 
+<!-- 今日のきろくカード -->
 <div class="card">
     <div class="card-title">💓 今日のきろく</div>
     <div class="today-date" id="todayDate"></div>
 
-    <div style="margin-bottom:20px;">
+    <div style="margin-bottom:18px;">
         <div class="section-lbl">😊 今日のご機嫌は？</div>
-        <div class="mood-selector">
-            <button class="mood-btn" data-mood="1" onclick="selectMood(1)"><span class="emo">😔</span><span>つらい</span></button>
-            <button class="mood-btn" data-mood="2" onclick="selectMood(2)"><span class="emo">😕</span><span>いまいち</span></button>
-            <button class="mood-btn" data-mood="3" onclick="selectMood(3)"><span class="emo">😊</span><span>ふつう</span></button>
-            <button class="mood-btn" data-mood="4" onclick="selectMood(4)"><span class="emo">😄</span><span>よい</span></button>
-            <button class="mood-btn" data-mood="5" onclick="selectMood(5)"><span class="emo">🥰</span><span>最高！</span></button>
+        <div class="level-row">
+            <button class="level-btn" data-mood="1" onclick="selectMood(1)"><span class="emo">😔</span><span>つらい</span></button>
+            <button class="level-btn" data-mood="2" onclick="selectMood(2)"><span class="emo">😕</span><span>いまいち</span></button>
+            <button class="level-btn" data-mood="3" onclick="selectMood(3)"><span class="emo">😊</span><span>ふつう</span></button>
+            <button class="level-btn" data-mood="4" onclick="selectMood(4)"><span class="emo">😄</span><span>よい</span></button>
+            <button class="level-btn" data-mood="5" onclick="selectMood(5)"><span class="emo">🥰</span><span>最高！</span></button>
         </div>
     </div>
 
-    <div style="margin-bottom:20px;">
+    <div style="margin-bottom:18px;">
+        <div class="section-lbl">🌸 今日の体調は？</div>
+        <div class="level-row">
+            <button class="level-btn" data-cond="1" onclick="selectCond(1)"><span class="emo">😴</span><span>しんどい</span></button>
+            <button class="level-btn" data-cond="2" onclick="selectCond(2)"><span class="emo">😕</span><span>まあまあ</span></button>
+            <button class="level-btn" data-cond="3" onclick="selectCond(3)"><span class="emo">😊</span><span>ふつう</span></button>
+            <button class="level-btn" data-cond="4" onclick="selectCond(4)"><span class="emo">😄</span><span>よい</span></button>
+            <button class="level-btn" data-cond="5" onclick="selectCond(5)"><span class="emo">🥰</span><span>絶好調</span></button>
+        </div>
+    </div>
+
+    <div style="margin-bottom:18px;">
         <div class="section-lbl">🦴 今日痛んだ関節は？<span style="font-size:10px;font-weight:400;">（タップして記録）</span></div>
         <div class="body-map-section">
-            <svg id="bodySvg" viewBox="-12 0 224 420" width="200" style="overflow:visible; display:block;">
+            <svg id="bodySvg" viewBox="-12 0 224 420" width="200" style="overflow:visible;display:block;">
                 <line x1="68" y1="82" x2="46" y2="134" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
                 <line x1="46" y1="134" x2="40" y2="185" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
                 <line x1="40" y1="185" x2="34" y2="214" stroke="#ffd6e8" stroke-width="9"  stroke-linecap="round"/>
@@ -376,28 +459,39 @@
         </div>
     </div>
 
-    <div style="margin-bottom:20px;">
-        <div class="section-lbl">💊 痛みの強さ（0＝なし　10＝激痛）</div>
-        <div class="pain-row">
-            <span class="pain-val-sm" id="painDisplay">😌 0</span>
-            <input type="range" class="pain-slider" id="painSlider" min="0" max="10" value="0" oninput="updatePain(this.value)">
+    <div style="margin-bottom:18px;">
+        <div class="section-lbl">💊 痛みの強さは？</div>
+        <div class="level-row">
+            <button class="level-btn" data-pain="1" onclick="selectPain(1)"><span class="emo">😌</span><span>なし</span></button>
+            <button class="level-btn" data-pain="2" onclick="selectPain(2)"><span class="emo">🙁</span><span>少し</span></button>
+            <button class="level-btn" data-pain="3" onclick="selectPain(3)"><span class="emo">😐</span><span>中程度</span></button>
+            <button class="level-btn" data-pain="4" onclick="selectPain(4)"><span class="emo">😣</span><span>強い</span></button>
+            <button class="level-btn" data-pain="5" onclick="selectPain(5)"><span class="emo">😭</span><span>激痛</span></button>
         </div>
     </div>
 
+    <div style="margin-bottom:18px;">
+        <div class="section-lbl">💊 今日の薬（任意）</div>
+        <input type="text" class="text-input" id="medicineInput" placeholder="例：MTX 8mg、プレドニン 5mg">
+    </div>
+
     <div style="margin-bottom:20px;">
-        <div class="section-lbl">📝 メモ（任意）</div>
-        <textarea class="memo-input" id="memoInput" rows="2" placeholder="今日の調子・気づきなど..."></textarea>
+        <div class="section-lbl">📝 ひとことメモ（任意）</div>
+        <textarea class="text-input" id="memoInput" rows="2" placeholder="今日の調子・気づきなど..."></textarea>
     </div>
 
     <button class="save-btn" onclick="saveRecord()">💓 今日の記録を保存する</button>
 </div>
 
+<!-- タブ -->
 <div class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('week')">📅 週間</button>
     <button class="tab-btn"        onclick="switchTab('month')">🗓 月間</button>
     <button class="tab-btn"        onclick="switchTab('year')">🌿 年間</button>
+    <button class="tab-btn"        onclick="switchTab('med')">💊 薬歴</button>
 </div>
 
+<!-- 週間ビュー -->
 <div id="view-week" class="card">
     <div class="nav-row">
         <button class="nav-btn" onclick="changeWeek(-1)">‹</button>
@@ -407,10 +501,17 @@
     <div class="stats-row" id="weekStats"></div>
     <div class="card-title">💓 ご機嫌の記録</div>
     <div class="week-grid" id="weekGrid"></div>
-    <div class="card-title" style="margin-top:14px;">💊 痛みの推移</div>
-    <div class="bar-chart" id="weekPainChart"></div>
+    <div class="card-title" style="margin-top:12px;">📊 14日間の推移</div>
+    <div class="chart-wrap" id="weekChart"></div>
+    <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#f472b6;"></span>ご機嫌</span>
+        <span><span class="legend-dot" style="background:#34d399;"></span>体調</span>
+        <span><span class="legend-dot" style="background:#fb923c;"></span>痛み</span>
+    </div>
+    <div class="ai-comment" id="weekComment" style="display:none;"></div>
 </div>
 
+<!-- 月間ビュー -->
 <div id="view-month" class="card" style="display:none;">
     <div class="nav-row">
         <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
@@ -420,12 +521,16 @@
     <div class="stats-row" id="monthStats"></div>
     <div class="month-cal" id="monthCal"></div>
     <div class="legend">
-        <span class="legend-item">😔 つらい</span><span class="legend-item">😕 いまいち</span>
-        <span class="legend-item">😊 ふつう</span><span class="legend-item">😄 よい</span>
+        <span class="legend-item">😔 つらい</span>
+        <span class="legend-item">😕 いまいち</span>
+        <span class="legend-item">😊 ふつう</span>
+        <span class="legend-item">😄 よい</span>
         <span class="legend-item">🥰 最高</span>
     </div>
+    <div class="ai-comment" id="monthComment" style="display:none;"></div>
 </div>
 
+<!-- 年間ビュー -->
 <div id="view-year" class="card" style="display:none;">
     <div class="nav-row">
         <button class="nav-btn" onclick="changeYear(-1)">‹</button>
@@ -438,7 +543,30 @@
     <div id="yearLegend"></div>
 </div>
 
-<!-- データのバックアップ -->
+<!-- 薬歴ビュー -->
+<div id="view-med" class="card" style="display:none;">
+    <div class="card-title">💊 薬の記録</div>
+    <button class="med-add-btn" id="medAddBtn" onclick="toggleMedForm()">＋ 薬の変化を記録する</button>
+    <div class="med-form" id="medForm">
+        <input type="text" id="medName" placeholder="薬名（例：メトトレキサート）">
+        <input type="text" id="medDose" placeholder="量（例：8mg、4錠）">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">変化の種類</div>
+        <div class="change-type-row" id="changeTypeRow">
+            <button class="ct-btn" data-ct="開始" onclick="selectCt(this)">🟢 開始</button>
+            <button class="ct-btn" data-ct="増量" onclick="selectCt(this)">🔴 増量</button>
+            <button class="ct-btn" data-ct="減量" onclick="selectCt(this)">🔵 減量</button>
+            <button class="ct-btn" data-ct="休薬" onclick="selectCt(this)">⚪ 休薬</button>
+            <button class="ct-btn" data-ct="再開" onclick="selectCt(this)">🟡 再開</button>
+            <button class="ct-btn" data-ct="終了" onclick="selectCt(this)">⬛ 終了</button>
+        </div>
+        <input type="date" id="medDate">
+        <input type="text" id="medMemo" placeholder="メモ（任意）">
+        <button class="med-save-btn" onclick="saveMedEntry()">💓 記録する</button>
+    </div>
+    <div class="med-timeline" id="medTimeline"></div>
+</div>
+
+<!-- バックアップ -->
 <div class="card">
     <div class="card-title">🗂 データのバックアップ</div>
     <div class="backup-row">
@@ -446,10 +574,7 @@
         <button class="backup-btn import-btn" onclick="document.getElementById('importFile').click()">📤 読み込む</button>
         <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
     </div>
-    <p class="backup-note">
-        機種変更のときは「ダウンロード」でファイルを保存し、<br>
-        新しいスマホで「読み込む」を使うとデータが引き継げます 💓
-    </p>
+    <p class="backup-note">機種変更のときは「ダウンロード」でファイルを保存し、<br>新しいスマホで「読み込む」を使うとデータが引き継げます 💓</p>
 </div>
 
 <!-- 過去日編集モーダル -->
@@ -459,20 +584,30 @@
       <div class="modal-date-title" id="modalDateTitle">📅</div>
       <button class="modal-close" onclick="closeDateModal()">✕</button>
     </div>
-    <div style="margin-bottom:18px;">
+    <div style="margin-bottom:16px;">
       <div class="section-lbl">😊 ご機嫌は？</div>
-      <div class="mood-selector">
-        <button class="mood-btn m-mood-btn" data-mood="1" onclick="mSelectMood(1)"><span class="emo">😔</span><span>つらい</span></button>
-        <button class="mood-btn m-mood-btn" data-mood="2" onclick="mSelectMood(2)"><span class="emo">😕</span><span>いまいち</span></button>
-        <button class="mood-btn m-mood-btn" data-mood="3" onclick="mSelectMood(3)"><span class="emo">😊</span><span>ふつう</span></button>
-        <button class="mood-btn m-mood-btn" data-mood="4" onclick="mSelectMood(4)"><span class="emo">😄</span><span>よい</span></button>
-        <button class="mood-btn m-mood-btn" data-mood="5" onclick="mSelectMood(5)"><span class="emo">🥰</span><span>最高！</span></button>
+      <div class="level-row">
+        <button class="level-btn m-mood-btn" data-mood="1" onclick="mSelectMood(1)"><span class="emo">😔</span><span>つらい</span></button>
+        <button class="level-btn m-mood-btn" data-mood="2" onclick="mSelectMood(2)"><span class="emo">😕</span><span>いまいち</span></button>
+        <button class="level-btn m-mood-btn" data-mood="3" onclick="mSelectMood(3)"><span class="emo">😊</span><span>ふつう</span></button>
+        <button class="level-btn m-mood-btn" data-mood="4" onclick="mSelectMood(4)"><span class="emo">😄</span><span>よい</span></button>
+        <button class="level-btn m-mood-btn" data-mood="5" onclick="mSelectMood(5)"><span class="emo">🥰</span><span>最高！</span></button>
       </div>
     </div>
-    <div style="margin-bottom:18px;">
+    <div style="margin-bottom:16px;">
+      <div class="section-lbl">🌸 体調は？</div>
+      <div class="level-row">
+        <button class="level-btn m-cond-btn" data-cond="1" onclick="mSelectCond(1)"><span class="emo">😴</span><span>しんどい</span></button>
+        <button class="level-btn m-cond-btn" data-cond="2" onclick="mSelectCond(2)"><span class="emo">😕</span><span>まあまあ</span></button>
+        <button class="level-btn m-cond-btn" data-cond="3" onclick="mSelectCond(3)"><span class="emo">😊</span><span>ふつう</span></button>
+        <button class="level-btn m-cond-btn" data-cond="4" onclick="mSelectCond(4)"><span class="emo">😄</span><span>よい</span></button>
+        <button class="level-btn m-cond-btn" data-cond="5" onclick="mSelectCond(5)"><span class="emo">🥰</span><span>絶好調</span></button>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
       <div class="section-lbl">🦴 痛んだ関節は？<span style="font-size:10px;font-weight:400;">（タップして記録）</span></div>
       <div class="body-map-section">
-        <svg id="mBodySvg" viewBox="-12 0 224 420" width="200" style="overflow:visible; display:block;">
+        <svg id="mBodySvg" viewBox="-12 0 224 420" width="200" style="overflow:visible;display:block;">
           <line x1="68" y1="82" x2="46" y2="134" stroke="#ffd6e8" stroke-width="13" stroke-linecap="round"/>
           <line x1="46" y1="134" x2="40" y2="185" stroke="#ffd6e8" stroke-width="11" stroke-linecap="round"/>
           <line x1="40" y1="185" x2="34" y2="214" stroke="#ffd6e8" stroke-width="9"  stroke-linecap="round"/>
@@ -511,16 +646,23 @@
         <button class="clear-btn" onclick="mClearJoints()">✕ クリア</button>
       </div>
     </div>
-    <div style="margin-bottom:18px;">
-      <div class="section-lbl">💊 痛みの強さ（0＝なし　10＝激痛）</div>
-      <div class="pain-row">
-        <span class="pain-val-sm" id="mPainDisplay">😌 0</span>
-        <input type="range" class="pain-slider" id="mPainSlider" min="0" max="10" value="0" oninput="mUpdatePain(this.value)">
+    <div style="margin-bottom:16px;">
+      <div class="section-lbl">💊 痛みの強さは？</div>
+      <div class="level-row">
+        <button class="level-btn m-pain-btn" data-pain="1" onclick="mSelectPain(1)"><span class="emo">😌</span><span>なし</span></button>
+        <button class="level-btn m-pain-btn" data-pain="2" onclick="mSelectPain(2)"><span class="emo">🙁</span><span>少し</span></button>
+        <button class="level-btn m-pain-btn" data-pain="3" onclick="mSelectPain(3)"><span class="emo">😐</span><span>中程度</span></button>
+        <button class="level-btn m-pain-btn" data-pain="4" onclick="mSelectPain(4)"><span class="emo">😣</span><span>強い</span></button>
+        <button class="level-btn m-pain-btn" data-pain="5" onclick="mSelectPain(5)"><span class="emo">😭</span><span>激痛</span></button>
       </div>
     </div>
-    <div style="margin-bottom:18px;">
+    <div style="margin-bottom:16px;">
+      <div class="section-lbl">💊 今日の薬（任意）</div>
+      <input type="text" class="text-input" id="mMedicineInput" placeholder="例：MTX 8mg">
+    </div>
+    <div style="margin-bottom:16px;">
       <div class="section-lbl">📝 メモ（任意）</div>
-      <textarea class="memo-input" id="mMemoInput" rows="2" placeholder="その日の調子・気づきなど..."></textarea>
+      <textarea class="text-input" id="mMemoInput" rows="2" placeholder="その日の調子・気づきなど..."></textarea>
     </div>
     <button class="save-btn" onclick="saveModalRecord()">💓 記録を保存する</button>
   </div>
@@ -529,6 +671,7 @@
 <div class="toast" id="toast">💓 記録しました！</div>
 
 <script>
+// ── 関節データ ──
 const JOINTS = [
     { id:'r-jaw', label:'左顎(TMJ)', cx:84,  cy:46  },
     { id:'l-jaw', label:'右顎(TMJ)', cx:116, cy:46  },
@@ -558,61 +701,128 @@ function buildJointSvg() {
             <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="7"/>
         </g>`).join('');
 }
+function buildJointSvgModal() {
+    document.getElementById('mJointLayer').innerHTML = JOINTS.map(j => `
+        <g class="jg" id="mjg-${j.id}" onclick="mToggleJoint('${j.id}')" role="button" aria-label="${j.label}">
+            <circle class="jhit" cx="${j.cx}" cy="${j.cy}" r="14"/>
+            <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="7"/>
+        </g>`).join('');
+}
 
+// ── データ管理 ──
 const STORAGE_KEY = 'genki_note_v1';
-function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
-function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+const MED_KEY     = 'genki_medicine_v1';
+
+function loadData()    { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+function saveData(d)   { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+function loadMedData() { try { return JSON.parse(localStorage.getItem(MED_KEY))     || []; } catch { return []; } }
+function saveMedData(d){ localStorage.setItem(MED_KEY, JSON.stringify(d)); }
+
 function dateKey(d) {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+// 旧データ移行：痛み 0-10 → 1-5
+function migrateData() {
+    const data = loadData(); let changed = false;
+    for (const k in data) {
+        const r = data[k];
+        if (r.pain > 5) {
+            const p = r.pain;
+            r.pain = p <= 2 ? 1 : p <= 4 ? 2 : p <= 6 ? 3 : p <= 8 ? 4 : 5;
+            changed = true;
+        }
+    }
+    if (changed) saveData(data);
+}
+
+// ── 定数 ──
 const today       = new Date();
 const WEEK_DAYS   = ['月','火','水','木','金','土','日'];
 const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 const MOOD_EMO    = ['','😔','😕','😊','😄','🥰'];
 const MOOD_LABEL  = ['','つらい','いまいち','ふつう','よい','最高！'];
 const MOOD_COLOR  = ['','#fecdd3','#fed7aa','#bbf7d0','#bae6fd','#fbcfe8'];
-function painColor(v) {
-    if (v === 0) return '#86efac';
-    if (v <= 3)  return '#fcd34d';
-    if (v <= 6)  return '#fb923c';
-    return '#f87171';
-}
-const PAIN_EMO = ['😌','😌','🙂','😐','😐','😟','😟','😣','😣','😭','😭'];
-const PAIN_COL = ['#86efac','#86efac','#a3e635','#fde047','#fcd34d','#fb923c','#f97316','#ef4444','#dc2626','#b91c1c','#7f1d1d'];
+const PAIN_EMO    = ['','😌','🙁','😐','😣','😭'];
+const PAIN_LABEL  = ['','なし','少し','中程度','強い','激痛'];
+const PAIN_COLOR  = ['','#86efac','#fcd34d','#fb923c','#ef4444','#991b1b'];
+const COND_EMO    = ['','😴','😕','😊','😄','🥰'];
+const COND_LABEL  = ['','しんどい','まあまあ','ふつう','よい','絶好調'];
+const COND_COLOR  = ['','#e2e8f0','#fde68a','#86efac','#4ade80','#22c55e'];
 
-const CHEERS = [
-    '今日も一歩ずつでいいよ 💓',
-    '記録すること自体が、もう十分えらいよ ✨',
-    '今日ここにいること、それだけでいい 🌸',
-    '自分のからだを大切にしてる、それってすごく素敵なこと 💕',
-    'つらい日もある。でもここにいるだけでえらい 💓',
-    'からだと仲良く、今日もゆっくり行こうね 🌷',
-    '元気な日も、しんどい日も、全部あなたの大切な一日 🌼',
-    '小さな気づきの積み重ねが、からだを知る一番の近道 📖',
-    'あなたのペースで、それが一番いい 💕',
-    '痛みと向き合ってきた自分を、もっと褒めてあげてね 🥰',
-    'コツコツ記録してる、それだけで十分すごい ✨',
-    '今日のからだの声、ちゃんと聞いてあげよう 💓',
-    '調子がいい日は、思いっきり楽しんで！🎉',
-    'しんどい日は、のんびりする日。それでいい 🍵',
-    '毎日記録できなくてもいい。思い出したときでOK 🌸',
-    '今日の記録が、未来の自分を助けてくれるよ 📝',
-    '笑顔の瞬間が、今日も少しあるといいね 😊',
-    'からだに優しい一日を 💓',
-    '今日はどんな日だった？ゆっくり教えてね 🌿',
-    'ここに来てくれてありがとう 💓',
+const CT_COLOR = {
+    '開始':'#dcfce7','増量':'#fee2e2','減量':'#dbeafe',
+    '休薬':'#f1f5f9','再開':'#d1fae5','終了':'#f3f4f6'
+};
+const CT_TEXT = {
+    '開始':'#166534','増量':'#991b1b','減量':'#1e40af',
+    '休薬':'#475569','再開':'#065f46','終了':'#374151'
+};
+
+// ── 継続日数 ──
+function calcStreak() {
+    const data = loadData();
+    let streak = 0, d = new Date(today);
+    while (data[dateKey(d)]) { streak++; d.setDate(d.getDate() - 1); }
+    return streak;
+}
+function renderStreak() {
+    const s = calcStreak();
+    const el = document.getElementById('streakBadge');
+    if (s === 0) { el.style.display = 'none'; return; }
+    el.style.display = 'inline-flex';
+    if      (s >= 100) el.textContent = `🏆 ${s}日継続中！`;
+    else if (s >= 30)  el.textContent = `🎉 ${s}日継続中`;
+    else if (s >= 7)   el.textContent = `🌸 ${s}日継続中`;
+    else               el.textContent = `🌱 ${s}日継続中`;
+}
+
+// ── ほめほめ ──
+const HOREHORE = [
+    { e:'🎉', m:'今日も記録できてえらい！' },
+    { e:'🌸', m:'自分の体と向き合えましたね' },
+    { e:'💮', m:'今日も一歩前進です' },
+    { e:'✨', m:'あなたは十分がんばっています' },
+    { e:'🌱', m:'小さな積み重ねが\n未来をつくっています' },
+    { e:'☀️', m:'今日も生きていてくれて\nありがとう' },
+    { e:'🌈', m:'無理せず続けられていて素敵です' },
+    { e:'💖', m:'自分を大切にできましたね' },
+    { e:'🍀', m:'記録すること自体が\nとても大切なこと' },
+    { e:'🌼', m:'今日のあなたに\nよくがんばったね' },
+    { e:'💕', m:'体の声を聞いてあげられたね' },
+    { e:'🦋', m:'今日も一日、お疲れさまでした' },
+    { e:'🌷', m:'ここに来てくれてありがとう 💓' },
+    { e:'💓', m:'あなたは十分、よくやっています' },
+    { e:'🌟', m:'今日も前を向いていてえらい' },
+    { e:'🫧', m:'からだに優しい今日でありますように' },
+    { e:'🎀', m:'自分を褒めてあげる日にしよう' },
+    { e:'🌙', m:'今日も一日、よくここまできたね' },
 ];
 
-function showCheerMsg() {
-    const rec = loadData()[dateKey(today)];
-    document.getElementById('cheerMsg').textContent = rec
-        ? `今日はもう記録済み ${MOOD_EMO[rec.mood]}　よくがんばったね！💕`
-        : CHEERS[Math.floor(Math.random() * CHEERS.length)];
+function showHorehore(streak) {
+    const h = HOREHORE[Math.floor(Math.random() * HOREHORE.length)];
+    let milestoneMsg = null;
+    if      (streak === 100) milestoneMsg = { e:'🏆', m:'100日継続達成！\nあなたは本当にすごい！' };
+    else if (streak === 60)  milestoneMsg = { e:'💮', m:'60日継続達成！\n素晴らしい継続力です' };
+    else if (streak === 30)  milestoneMsg = { e:'🎉', m:'30日継続達成！\n1ヶ月続けられました！' };
+    else if (streak === 7)   milestoneMsg = { e:'🌸', m:'1週間継続達成！\nコツコツえらいね 💓' };
+
+    const item = milestoneMsg || h;
+    document.getElementById('horeEmoji').textContent = item.e;
+    document.getElementById('horeMsg').innerHTML = item.m.replace(/\n/g,'<br>');
+    document.getElementById('horeStreak').textContent = streak > 0 ? `🌱 ${streak}日継続中` : '';
+    const ov = document.getElementById('horehoreOverlay');
+    ov.classList.add('show');
+    setTimeout(() => closeHorehore(), 4000);
+}
+function closeHorehore() {
+    document.getElementById('horehoreOverlay').classList.remove('show');
 }
 
+// ── フォーム状態 ──
 let selectedMood   = null;
-let selectedPain   = 0;
+let selectedCond   = null;
+let selectedPain   = null;
 let selectedJoints = new Set();
 
 document.getElementById('todayDate').textContent =
@@ -622,350 +832,422 @@ function loadTodayData() {
     const rec = loadData()[dateKey(today)];
     if (!rec) return;
     selectedMood = rec.mood;
-    selectedPain = rec.pain || 0;
+    selectedCond = rec.condition || null;
+    selectedPain = rec.pain || null;
     selectedJoints = new Set(rec.joints || []);
-    document.getElementById('painSlider').value = selectedPain;
-    document.getElementById('memoInput').value  = rec.memo || '';
-    updatePain(selectedPain);
-    document.querySelectorAll('.mood-btn').forEach(b => {
-        b.classList.toggle('selected', parseInt(b.dataset.mood) === rec.mood);
-    });
+    document.getElementById('medicineInput').value = rec.medicine || '';
+    document.getElementById('memoInput').value     = rec.memo    || '';
+    document.querySelectorAll('[data-mood]').forEach(b => b.classList.toggle('sel', +b.dataset.mood === rec.mood));
+    document.querySelectorAll('[data-cond]').forEach(b => b.classList.toggle('sel', +b.dataset.cond === rec.condition));
+    document.querySelectorAll('[data-pain]').forEach(b => b.classList.toggle('sel', +b.dataset.pain === rec.pain));
     refreshJointUI();
 }
 
-function selectMood(val) {
-    selectedMood = val;
-    document.querySelectorAll('.mood-btn').forEach(b => {
-        b.classList.toggle('selected', parseInt(b.dataset.mood) === val);
-    });
+function selectMood(v) {
+    selectedMood = v;
+    document.querySelectorAll('.card:not(.modal-card) [data-mood]').forEach(b => b.classList.toggle('sel', +b.dataset.mood === v));
+}
+function selectCond(v) {
+    selectedCond = v;
+    document.querySelectorAll('.card:not(.modal-card) [data-cond]').forEach(b => b.classList.toggle('sel', +b.dataset.cond === v));
+}
+function selectPain(v) {
+    selectedPain = v;
+    document.querySelectorAll('.card:not(.modal-card) [data-pain]').forEach(b => b.classList.toggle('sel', +b.dataset.pain === v));
 }
 
-function updatePain(val) {
-    selectedPain = parseInt(val);
-    const v = selectedPain;
-    document.getElementById('painDisplay').innerHTML =
-        `<span style="color:${PAIN_COL[v]}">${PAIN_EMO[v]}</span> ` +
-        `<span style="color:${PAIN_COL[v]};font-size:22px;">${v}</span>`;
-}
-
-function toggleJoint(id) {
-    selectedJoints.has(id) ? selectedJoints.delete(id) : selectedJoints.add(id);
-    refreshJointUI();
-}
-function clearJoints() { selectedJoints.clear(); refreshJointUI(); }
-
+function toggleJoint(id) { selectedJoints.has(id) ? selectedJoints.delete(id) : selectedJoints.add(id); refreshJointUI(); }
+function clearJoints()   { selectedJoints.clear(); refreshJointUI(); }
 function refreshJointUI() {
-    JOINTS.forEach(j => {
-        const g = document.getElementById(`jg-${j.id}`);
-        if (g) g.classList.toggle('on', selectedJoints.has(j.id));
-    });
-    const tagsEl = document.getElementById('jointTags');
-    if (selectedJoints.size === 0) {
-        tagsEl.innerHTML = '<span class="jtag-none">タップして選択</span>';
-    } else {
-        tagsEl.innerHTML = JOINTS.filter(j => selectedJoints.has(j.id))
-            .map(j => `<span class="jtag" onclick="toggleJoint('${j.id}')">${j.label} ✕</span>`)
-            .join('');
-    }
+    JOINTS.forEach(j => { const g = document.getElementById(`jg-${j.id}`); if(g) g.classList.toggle('on', selectedJoints.has(j.id)); });
+    const el = document.getElementById('jointTags');
+    el.innerHTML = selectedJoints.size === 0
+        ? '<span class="jtag-none">タップして選択</span>'
+        : JOINTS.filter(j => selectedJoints.has(j.id)).map(j => `<span class="jtag" onclick="toggleJoint('${j.id}')">${j.label} ✕</span>`).join('');
 }
 
 function saveRecord() {
     if (!selectedMood) { alert('ご機嫌度を選んでね 💓'); return; }
     const data = loadData();
     data[dateKey(today)] = {
-        mood: selectedMood, pain: selectedPain,
+        mood: selectedMood, condition: selectedCond, pain: selectedPain,
         joints: [...selectedJoints],
-        memo: document.getElementById('memoInput').value.trim(),
-        time: new Date().toISOString(),
+        medicine: document.getElementById('medicineInput').value.trim(),
+        memo:     document.getElementById('memoInput').value.trim(),
+        time:     new Date().toISOString(),
     };
     saveData(data);
-    const msgs = ['💓 記録しました！今日もよくがんばった 💕', '🌸 保存できたよ！えらい！', '✨ 記録完了！ゆっくりね 💓'];
-    showToast(msgs[Math.floor(Math.random() * msgs.length)]);
-    showCheerMsg();
+    const streak = calcStreak();
+    renderStreak();
+    showHorehore(streak);
     renderCurrentView();
 }
 
 function showToast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ── エクスポート（ダウンロード） ──
+// ── エクスポート・インポート ──
 function exportData() {
-    const data = loadData();
+    const data  = loadData();
+    const meds  = loadMedData();
     const count = Object.keys(data).length;
     if (count === 0) { showToast('まだ記録がないよ 💓'); return; }
-    const json = JSON.stringify({ version: 1, exported: new Date().toISOString(), records: data }, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `genkinate-backup-${dateKey(today)}.json`;
-    a.click();
+    const json = JSON.stringify({ version:2, exported:new Date().toISOString(), records:data, medicines:meds }, null, 2);
+    const blob = new Blob([json], {type:'application/json'});
+    const url  = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = `genkinate-backup-${dateKey(today)}.json`; a.click();
     URL.revokeObjectURL(url);
     showToast(`📥 ${count}件のデータをダウンロードしました`);
 }
-
-// ── インポート（読み込み） ──
 function importData(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = e => {
         try {
             const json    = JSON.parse(e.target.result);
-            const records = json.records || json; // バージョン1形式とダイレクト形式の両対応
-            const current = loadData();
-            const merged  = { ...current, ...records }; // 既存データに上書きマージ
-            saveData(merged);
-            const count = Object.keys(records).length;
-            showToast(`📤 ${count}件のデータを読み込みました 💓`);
-            renderCurrentView();
-            showCheerMsg();
-        } catch {
-            showToast('読み込みに失敗したよ。ファイルを確認してね');
-        }
+            const records = json.records || json;
+            const meds    = json.medicines || [];
+            saveData({ ...loadData(), ...records });
+            if (meds.length) saveMedData([...loadMedData(), ...meds]);
+            showToast(`📤 ${Object.keys(records).length}件のデータを読み込みました 💓`);
+            renderCurrentView(); loadTodayData(); renderStreak();
+        } catch { showToast('読み込みに失敗したよ。ファイルを確認してね'); }
     };
-    reader.readAsText(file);
-    event.target.value = ''; // 同じファイルを再選択できるようにリセット
+    reader.readAsText(file); event.target.value = '';
 }
 
+// ── 薬歴 ──
+let selectedCt = null;
+function toggleMedForm() {
+    const f = document.getElementById('medForm');
+    f.classList.toggle('open');
+    // 日付デフォルト
+    if (f.classList.contains('open')) {
+        document.getElementById('medDate').value = dateKey(today);
+    }
+}
+function selectCt(btn) {
+    selectedCt = btn.dataset.ct;
+    document.querySelectorAll('.ct-btn').forEach(b => b.classList.toggle('sel', b === btn));
+}
+function saveMedEntry() {
+    const name = document.getElementById('medName').value.trim();
+    if (!name) { alert('薬名を入力してね'); return; }
+    const entry = {
+        id: Date.now(), date: document.getElementById('medDate').value || dateKey(today),
+        name, dose: document.getElementById('medDose').value.trim(),
+        changeType: selectedCt || '記録', memo: document.getElementById('medMemo').value.trim(),
+        time: new Date().toISOString(),
+    };
+    const meds = loadMedData(); meds.unshift(entry); saveMedData(meds);
+    document.getElementById('medName').value = '';
+    document.getElementById('medDose').value = '';
+    document.getElementById('medMemo').value = '';
+    document.getElementById('medForm').classList.remove('open');
+    selectedCt = null;
+    document.querySelectorAll('.ct-btn').forEach(b => b.classList.remove('sel'));
+    renderMedView(); showToast('💓 薬の記録を保存したよ！');
+}
+function renderMedView() {
+    const meds = loadMedData();
+    const tl   = document.getElementById('medTimeline');
+    if (meds.length === 0) {
+        tl.innerHTML = '<div class="med-empty">薬の記録はまだないよ 💓<br>上のボタンから記録しよう</div>';
+        return;
+    }
+    tl.innerHTML = meds.map(m => {
+        const bg  = CT_COLOR[m.changeType]  || '#fff0f5';
+        const col = CT_TEXT[m.changeType]   || '#c44e7e';
+        return `<div class="med-entry">
+            <div class="med-entry-top">
+                <span class="med-entry-date">${m.date}</span>
+                <span class="med-entry-name">${m.name}</span>
+                ${m.changeType ? `<span class="ct-badge" style="background:${bg};color:${col};">${m.changeType}</span>` : ''}
+                ${m.dose ? `<span style="font-size:12px;color:var(--muted);">${m.dose}</span>` : ''}
+            </div>
+            ${m.memo ? `<div class="med-entry-memo">${m.memo}</div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+// ── タブ切り替え ──
 let currentTab = 'week';
 function switchTab(tab) {
     currentTab = tab;
-    document.querySelectorAll('.tab-btn').forEach((b, i) => {
-        b.classList.toggle('active', ['week','month','year'][i] === tab);
-    });
-    ['week','month','year'].forEach(t => {
+    ['week','month','year','med'].forEach(t => {
         document.getElementById(`view-${t}`).style.display = t === tab ? 'block' : 'none';
+        document.querySelectorAll('.tab-btn')[['week','month','year','med'].indexOf(t)].classList.toggle('active', t === tab);
     });
     renderCurrentView();
 }
 function renderCurrentView() {
     if      (currentTab === 'week')  renderWeek();
     else if (currentTab === 'month') renderMonth();
-    else                             renderYear();
+    else if (currentTab === 'year')  renderYear();
+    else                             renderMedView();
 }
 
+// ── 重ね合わせグラフ ──
+function drawChart(data, days) {
+    const W=320, H=100, PX=22, PY=12;
+    const n = days.length;
+    if (n < 2) return '<p style="text-align:center;color:var(--muted);font-size:11px;padding:10px;">もう少しデータが溜まるとグラフが表示されます 💓</p>';
+    const xStep = (W - PX*2) / (n-1);
+    function yPos(v) { return H - PY - ((v-1)/4) * (H - PY*2); }
+
+    function buildPolyline(metric, color) {
+        let segs = [], cur = [];
+        days.forEach((d, i) => {
+            const e = data[d.key], v = e ? e[metric] : null;
+            if (v != null && v >= 1 && v <= 5) {
+                cur.push(`${(PX + i*xStep).toFixed(1)},${yPos(v).toFixed(1)}`);
+            } else {
+                if (cur.length >= 2) segs.push(`<polyline points="${cur.join(' ')}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`);
+                if (cur.length === 1) {
+                    const [x,y] = cur[0].split(',');
+                    segs.push(`<circle cx="${x}" cy="${y}" r="3.5" fill="${color}"/>`);
+                }
+                cur = [];
+            }
+        });
+        if (cur.length >= 2) segs.push(`<polyline points="${cur.join(' ')}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`);
+        if (cur.length === 1) { const [x,y] = cur[0].split(','); segs.push(`<circle cx="${x}" cy="${y}" r="3.5" fill="${color}"/>`); }
+        return segs.join('');
+    }
+
+    // X軸ラベル（5本程度）
+    const step = Math.max(1, Math.floor(n/5));
+    const xLabels = days
+        .map((d,i) => (i % step === 0 || i === n-1)
+            ? `<text x="${(PX + i*xStep).toFixed(1)}" y="${H+11}" text-anchor="middle" font-size="8" fill="#c4849a">${d.date.getMonth()+1}/${d.date.getDate()}</text>`
+            : '').join('');
+
+    // Y軸補助線
+    const yLines = [1,2,3,4,5].map(v =>
+        `<line x1="${PX}" y1="${yPos(v).toFixed(1)}" x2="${W-PX}" y2="${yPos(v).toFixed(1)}" stroke="#ffd6e8" stroke-width="1" stroke-dasharray="3,3"/>`
+    ).join('');
+
+    return `<svg viewBox="0 0 ${W} ${H+16}" style="width:100%;overflow:visible;">
+        ${yLines}
+        ${buildPolyline('mood','#f472b6')}
+        ${buildPolyline('condition','#34d399')}
+        ${buildPolyline('pain','#fb923c')}
+        ${xLabels}
+    </svg>`;
+}
+
+// ── AIコメント（ルールベース） ──
+function generateComment(entries, prevEntries) {
+    if (entries.length === 0) return null;
+    const avg  = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+    const mAvg = avg(entries.filter(e=>e.mood).map(e=>e.mood));
+    const pAvg = avg(entries.filter(e=>e.pain).map(e=>e.pain));
+    const cAvg = avg(entries.filter(e=>e.condition).map(e=>e.condition));
+    const pMAvg = prevEntries.length ? avg(prevEntries.filter(e=>e.mood).map(e=>e.mood)) : null;
+    const pPAvg = prevEntries.length ? avg(prevEntries.filter(e=>e.pain).map(e=>e.pain)) : null;
+
+    const msgs = [];
+    if (entries.length >= 3) msgs.push(`${entries.length}日分の記録があります、コツコツえらい！ ✨`);
+    if (pMAvg !== null && mAvg - pMAvg >= 0.5) msgs.push('前の期間よりご機嫌な日が増えています 😊');
+    if (pMAvg !== null && pMAvg - mAvg >= 0.5) msgs.push('少しつらい時期かも。無理せず休んでね 💓');
+    if (pPAvg !== null && pPAvg - pAvg >= 0.5) msgs.push('痛みが前よりも落ち着いてきています 🌸');
+    if (cAvg !== null && cAvg >= 4) msgs.push('体調が良い日が多かったね、素晴らしい！ 🥰');
+    if (msgs.length === 0) msgs.push('記録を続けることが、一番の自分への贈り物 💓');
+    return msgs.join('\n');
+}
+
+// ── 週間ビュー ──
 let weekOffset = 0;
 function changeWeek(d) { weekOffset += d; renderWeek(); }
 function weekStartDate(offset) {
-    const d = new Date(today), dow = (today.getDay() + 6) % 7;
-    d.setDate(today.getDate() - dow + offset * 7);
-    return d;
+    const d = new Date(today), dow = (today.getDay()+6)%7;
+    d.setDate(today.getDate() - dow + offset*7); return d;
 }
 function renderWeek() {
     const data = loadData();
     const ws   = weekStartDate(weekOffset);
-    const we   = new Date(ws); we.setDate(we.getDate() + 6);
-    document.getElementById('weekLabel').textContent =
-        `${ws.getMonth()+1}/${ws.getDate()} ～ ${we.getMonth()+1}/${we.getDate()}`;
-    let mSum=0, mCnt=0, pSum=0, pCnt=0, jTotal=0;
+    const we   = new Date(ws); we.setDate(we.getDate()+6);
+    document.getElementById('weekLabel').textContent = `${ws.getMonth()+1}/${ws.getDate()} ～ ${we.getMonth()+1}/${we.getDate()}`;
+
+    let mS=0,mC=0,pS=0,pC=0,cS=0,cC=0,jTotal=0;
     const entries = [];
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(ws); d.setDate(d.getDate() + i);
+    for (let i=0; i<7; i++) {
+        const d = new Date(ws); d.setDate(d.getDate()+i);
         const k = dateKey(d), e = data[k];
-        entries.push({ label: WEEK_DAYS[i], date: d, e });
-        if (e) { mSum+=e.mood; mCnt++; pSum+=e.pain; pCnt++; jTotal+=(e.joints||[]).length; }
+        entries.push({ label:WEEK_DAYS[i], date:d, e, key:k });
+        if (e) { if(e.mood){mS+=e.mood;mC++;} if(e.pain){pS+=e.pain;pC++;} if(e.condition){cS+=e.condition;cC++;} jTotal+=(e.joints||[]).length; }
     }
+
     document.getElementById('weekStats').innerHTML = `
-        <div class="stat-card"><div class="stat-emo">${mCnt ? MOOD_EMO[Math.round(mSum/mCnt)] : '📊'}</div><div class="stat-val">${mCnt ? (mSum/mCnt).toFixed(1) : '-'}</div><div class="stat-lbl">平均ご機嫌</div></div>
-        <div class="stat-card"><div class="stat-emo">💊</div><div class="stat-val">${pCnt ? (pSum/pCnt).toFixed(1) : '-'}</div><div class="stat-lbl">平均痛み度</div></div>
+        <div class="stat-card"><div class="stat-emo">${mC?MOOD_EMO[Math.round(mS/mC)]:'📊'}</div><div class="stat-val">${mC?(mS/mC).toFixed(1):'-'}</div><div class="stat-lbl">平均ご機嫌</div></div>
+        <div class="stat-card"><div class="stat-emo">${cC?COND_EMO[Math.round(cS/cC)]:'🌸'}</div><div class="stat-val">${cC?(cS/cC).toFixed(1):'-'}</div><div class="stat-lbl">平均体調</div></div>
+        <div class="stat-card"><div class="stat-emo">${pC?PAIN_EMO[Math.round(pS/pC)]:'💊'}</div><div class="stat-val">${pC?(pS/pC).toFixed(1):'-'}</div><div class="stat-lbl">平均痛み</div></div>
         <div class="stat-card"><div class="stat-emo">🦴</div><div class="stat-val">${jTotal}</div><div class="stat-lbl">延べ痛み部位</div></div>`;
-    document.getElementById('weekGrid').innerHTML = entries.map(({label, date, e}) => {
-        const isToday = dateKey(date) === dateKey(today);
-        const bStyle  = e ? `background:${MOOD_COLOR[e.mood]}88; border-color:${MOOD_COLOR[e.mood]};` : (isToday ? 'border-color:#f472b6;' : '');
-        const tip = e ? `${MOOD_LABEL[e.mood]}／痛み${e.pain}${(e.joints||[]).length ? '／'+(e.joints||[]).map(id=>JOINTS.find(j=>j.id===id)?.label||id).join('・') : ''}` : '';
-        return `<div class="day-cell" onclick="openDateModal('${dateKey(date)}')" title="${tip}">
-            <div class="day-lbl" style="color:${isToday?'var(--accent)':'var(--muted)'}">${label}</div>
-            <div class="day-bubble ${e?'has-data':''}" style="${bStyle}${isToday?'border-width:2.5px;':''}">
-                ${e ? MOOD_EMO[e.mood] : (isToday ? '✏️' : '')}
+
+    document.getElementById('weekGrid').innerHTML = entries.map(({label,date,e,key}) => {
+        const isT   = dateKey(date) === dateKey(today);
+        const bSty  = e ? `background:${MOOD_COLOR[e.mood]}88;border-color:${MOOD_COLOR[e.mood]};` : (isT?'border-color:#f472b6;':'');
+        const tip   = e ? `${MOOD_LABEL[e.mood]} / 痛み:${e.pain?PAIN_LABEL[e.pain]:'未記録'} / 体調:${e.condition?COND_LABEL[e.condition]:'未記録'}` : '';
+        return `<div class="day-cell" onclick="openDateModal('${key}')" title="${tip}">
+            <div class="day-lbl" style="color:${isT?'var(--accent)':'var(--muted)'}">${label}</div>
+            <div class="day-bubble ${e?'has-data':''}" style="${bSty}${isT?'border-width:2.5px;':''}">
+                ${e ? MOOD_EMO[e.mood] : (isT?'✏️':'')}
             </div>
-            <div class="pain-dot" style="background:${e ? painColor(e.pain) : 'var(--border)'}; margin:0 auto;"></div>
+            <div class="pain-dot" style="background:${e&&e.pain?PAIN_COLOR[e.pain]:'var(--border)'};margin:0 auto;"></div>
         </div>`;
     }).join('');
-    document.getElementById('weekPainChart').innerHTML = entries.map(({label, e}) => {
-        const v = e ? e.pain : 0, pct = e ? Math.max(5, v/10*100) : 0;
-        return `<div class="bar-item"><div class="bar-fill" style="height:${pct}%; background:${e ? painColor(v) : 'var(--border)'};"></div><div class="bar-lbl">${label}</div></div>`;
-    }).join('');
+
+    // 過去14日グラフ
+    const chartDays = [];
+    for (let i=13; i>=0; i--) { const d=new Date(today); d.setDate(today.getDate()-i); chartDays.push({key:dateKey(d),date:d}); }
+    document.getElementById('weekChart').innerHTML = drawChart(data, chartDays);
+
+    // AIコメント
+    const recEntries  = entries.filter(e=>e.e).map(e=>e.e);
+    const prevEntries = [];
+    for (let i=7; i<14; i++) { const d=new Date(ws); d.setDate(d.getDate()-i); const e=data[dateKey(d)]; if(e) prevEntries.push(e); }
+    const comment = generateComment(recEntries, prevEntries);
+    const cel = document.getElementById('weekComment');
+    if (comment) { cel.innerHTML = comment.replace(/\n/g,'<br>'); cel.style.display='block'; }
+    else          { cel.style.display='none'; }
 }
 
+// ── 月間ビュー ──
 let monthOffset = 0;
 function changeMonth(d) { monthOffset += d; renderMonth(); }
 function renderMonth() {
     const data  = loadData();
-    const base  = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+    const base  = new Date(today.getFullYear(), today.getMonth()+monthOffset, 1);
     const year  = base.getFullYear(), month = base.getMonth();
     const dim   = new Date(year, month+1, 0).getDate();
-    const offset = (new Date(year, month, 1).getDay() + 6) % 7;
+    const offset= (new Date(year,month,1).getDay()+6)%7;
     document.getElementById('monthLabel').textContent = `${year}年${month+1}月`;
-    let mSum=0, mCnt=0, pSum=0, pCnt=0, jTotal=0;
+
+    let mS=0,mC=0,pS=0,pC=0,cS=0,cC=0,jTotal=0;
+    const recEntries=[], prevEntries=[];
     for (let d=1; d<=dim; d++) {
-        const k = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const e = data[k];
-        if (e) { mSum+=e.mood; mCnt++; pSum+=e.pain; pCnt++; jTotal+=(e.joints||[]).length; }
+        const k=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, e=data[k];
+        if (e) { if(e.mood){mS+=e.mood;mC++;} if(e.pain){pS+=e.pain;pC++;} if(e.condition){cS+=e.condition;cC++;} jTotal+=(e.joints||[]).length; recEntries.push(e); }
     }
+    // 前月
+    const prevBase = new Date(year, month-1, 1);
+    const prevDim  = new Date(year, month, 0).getDate();
+    for (let d=1; d<=prevDim; d++) {
+        const k=`${prevBase.getFullYear()}-${String(prevBase.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, e=data[k];
+        if (e) prevEntries.push(e);
+    }
+
     document.getElementById('monthStats').innerHTML = `
-        <div class="stat-card"><div class="stat-emo">${mCnt ? MOOD_EMO[Math.round(mSum/mCnt)] : '📊'}</div><div class="stat-val">${mCnt ? (mSum/mCnt).toFixed(1) : '-'}</div><div class="stat-lbl">平均ご機嫌</div></div>
-        <div class="stat-card"><div class="stat-emo">💊</div><div class="stat-val">${pCnt ? (pSum/pCnt).toFixed(1) : '-'}</div><div class="stat-lbl">平均痛み度</div></div>
-        <div class="stat-card"><div class="stat-emo">🦴</div><div class="stat-val">${jTotal}</div><div class="stat-lbl">延べ痛み部位</div></div>`;
-    let html = WEEK_DAYS.map(h => `<div class="cal-hdr">${h}</div>`).join('');
-    for (let i=0; i<offset; i++) html += `<div class="cal-day empty"></div>`;
+        <div class="stat-card"><div class="stat-emo">${mC?MOOD_EMO[Math.round(mS/mC)]:'📊'}</div><div class="stat-val">${mC?(mS/mC).toFixed(1):'-'}</div><div class="stat-lbl">平均ご機嫌</div></div>
+        <div class="stat-card"><div class="stat-emo">${cC?COND_EMO[Math.round(cS/cC)]:'🌸'}</div><div class="stat-val">${cC?(cS/cC).toFixed(1):'-'}</div><div class="stat-lbl">平均体調</div></div>
+        <div class="stat-card"><div class="stat-emo">${pC?PAIN_EMO[Math.round(pS/pC)]:'💊'}</div><div class="stat-val">${pC?(pS/pC).toFixed(1):'-'}</div><div class="stat-lbl">平均痛み</div></div>
+        <div class="stat-card"><div class="stat-emo">📝</div><div class="stat-val">${mC}</div><div class="stat-lbl">記録日数</div></div>`;
+
+    let html = WEEK_DAYS.map(h=>`<div class="cal-hdr">${h}</div>`).join('');
+    for (let i=0;i<offset;i++) html += `<div class="cal-day empty"></div>`;
     for (let d=1; d<=dim; d++) {
-        const k = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const e = data[k], isT = k === dateKey(today);
-        const tip = e ? `${MOOD_LABEL[e.mood]}／痛み${e.pain}${(e.joints||[]).length ? '／'+(e.joints||[]).map(id=>JOINTS.find(j=>j.id===id)?.label||id).join('・') : ''}` : '';
-        html += `<div class="cal-day ${isT?'today-mark':''}" style="${e ? `background:${MOOD_COLOR[e.mood]}88;` : ''}" title="${tip}" onclick="openDateModal('${k}')">
+        const k=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, e=data[k], isT=k===dateKey(today);
+        const tip = e ? `${MOOD_LABEL[e.mood]}／痛み:${e.pain?PAIN_LABEL[e.pain]:'未記録'}` : '';
+        html += `<div class="cal-day ${isT?'today-mark':''}" style="${e?`background:${MOOD_COLOR[e.mood]}88;`:''}" title="${tip}" onclick="openDateModal('${k}')">
             <span class="dn" style="color:${isT?'var(--accent)':'var(--muted)'}">${d}</span>
-            <span class="mm">${e ? MOOD_EMO[e.mood] : ''}</span>
+            <span class="mm">${e?MOOD_EMO[e.mood]:''}</span>
         </div>`;
     }
     document.getElementById('monthCal').innerHTML = html;
+
+    const comment = generateComment(recEntries, prevEntries);
+    const cel = document.getElementById('monthComment');
+    if (comment) { cel.innerHTML = comment.replace(/\n/g,'<br>'); cel.style.display='block'; }
+    else          { cel.style.display='none'; }
 }
 
+// ── 年間ビュー ──
 let yearOffset = 0;
 function changeYear(d) { yearOffset += d; renderYear(); }
 function renderYear() {
-    const data = loadData();
-    const year = today.getFullYear() + yearOffset;
+    const data = loadData(), year = today.getFullYear()+yearOffset;
     document.getElementById('yearLabel').textContent = `${year}年`;
-    let mSum=0, mCnt=0, pSum=0, pCnt=0;
-    for (const k in data) {
-        if (k.startsWith(`${year}-`)) { mSum+=data[k].mood; mCnt++; pSum+=data[k].pain; pCnt++; }
-    }
+    let mS=0,mC=0,pS=0,pC=0,days=0;
+    for (const k in data) { if(k.startsWith(`${year}-`)) { const e=data[k]; if(e.mood){mS+=e.mood;mC++;} if(e.pain){pS+=e.pain;pC++;} days++; } }
     document.getElementById('yearStats').innerHTML = `
-        <div class="stat-card"><div class="stat-emo">${mCnt ? MOOD_EMO[Math.round(mSum/mCnt)] : '📊'}</div><div class="stat-val">${mCnt ? (mSum/mCnt).toFixed(1) : '-'}</div><div class="stat-lbl">年間平均ご機嫌</div></div>
-        <div class="stat-card"><div class="stat-emo">💊</div><div class="stat-val">${pCnt ? (pSum/pCnt).toFixed(1) : '-'}</div><div class="stat-lbl">年間平均痛み</div></div>
-        <div class="stat-card"><div class="stat-emo">📝</div><div class="stat-val">${mCnt}</div><div class="stat-lbl">記録日数</div></div>`;
-    let html = '';
+        <div class="stat-card"><div class="stat-emo">${mC?MOOD_EMO[Math.round(mS/mC)]:'📊'}</div><div class="stat-val">${mC?(mS/mC).toFixed(1):'-'}</div><div class="stat-lbl">年間ご機嫌</div></div>
+        <div class="stat-card"><div class="stat-emo">💊</div><div class="stat-val">${pC?(pS/pC).toFixed(1):'-'}</div><div class="stat-lbl">年間痛み</div></div>
+        <div class="stat-card"><div class="stat-emo">📝</div><div class="stat-val">${days}</div><div class="stat-lbl">記録日数</div></div>`;
+    let html='';
     for (let m=0; m<12; m++) {
-        const dim = new Date(year, m+1, 0).getDate();
-        const off = (new Date(year, m, 1).getDay() + 6) % 7;
+        const dim=new Date(year,m+1,0).getDate(), off=(new Date(year,m,1).getDay()+6)%7;
         html += `<div><div class="hm-month-lbl">${MONTH_NAMES[m]}</div><div class="hm-grid">`;
-        for (let s=0; s<off; s++) html += `<div></div>`;
+        for (let s=0;s<off;s++) html += `<div></div>`;
         for (let d=1; d<=dim; d++) {
-            const k = `${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const e = data[k], isT = k === dateKey(today);
-            html += `<div class="hm-cell" style="background:${e ? MOOD_COLOR[e.mood] : 'var(--border)'};${isT?'outline:2px solid #f472b6;outline-offset:1px;':''}" title="${e ? `${m+1}/${d} ${MOOD_LABEL[e.mood]} 痛み:${e.pain}` : `${m+1}/${d}`}"></div>`;
+            const k=`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, e=data[k], isT=k===dateKey(today);
+            html += `<div class="hm-cell" onclick="openDateModal('${k}')" style="background:${e?MOOD_COLOR[e.mood]:'var(--border)'};${isT?'outline:2px solid #f472b6;outline-offset:1px;':''}" title="${e?`${m+1}/${d} ${MOOD_LABEL[e.mood]} 痛み:${e.pain?PAIN_LABEL[e.pain]:'未記録'}`:`${m+1}/${d}`}"></div>`;
         }
         html += `</div></div>`;
     }
     document.getElementById('yearHeatmap').innerHTML = html;
     document.getElementById('yearLegend').innerHTML = `<div class="legend">
-        ${[1,2,3,4,5].map(i => `<span class="legend-item"><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:${MOOD_COLOR[i]};"></span>${MOOD_EMO[i]}</span>`).join('')}
+        ${[1,2,3,4,5].map(i=>`<span class="legend-item"><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:${MOOD_COLOR[i]};"></span>${MOOD_EMO[i]}</span>`).join('')}
         <span class="legend-item"><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:var(--border);"></span>未記録</span>
     </div>`;
 }
 
 // ── 過去日編集モーダル ──
-let modalDateKey = null;
-let modalMood    = null;
-let modalPain    = 0;
-let modalJoints  = new Set();
-
-function buildJointSvgModal() {
-    document.getElementById('mJointLayer').innerHTML = JOINTS.map(j => `
-        <g class="jg" id="mjg-${j.id}" onclick="mToggleJoint('${j.id}')" role="button" aria-label="${j.label}">
-            <circle class="jhit" cx="${j.cx}" cy="${j.cy}" r="14"/>
-            <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="7"/>
-        </g>`).join('');
-}
+let modalDateKey=null, modalMood=null, modalCond=null, modalPain=null, modalJoints=new Set();
 
 function openDateModal(key) {
-    modalDateKey = key;
-    const rec    = loadData()[key] || null;
-    modalMood    = rec ? rec.mood       : null;
-    modalPain    = rec ? (rec.pain || 0): 0;
-    modalJoints  = new Set(rec ? (rec.joints || []) : []);
-
-    const [y, m, d] = key.split('-').map(Number);
-    const dt = new Date(y, m - 1, d);
-    const DN = ['日','月','火','水','木','金','土'];
-    document.getElementById('modalDateTitle').textContent =
-        `${y}年${m}月${d}日（${DN[dt.getDay()]}）のきろく`;
-
-    document.querySelectorAll('.m-mood-btn').forEach(b => {
-        b.classList.toggle('selected', parseInt(b.dataset.mood) === modalMood);
-    });
-    document.getElementById('mPainSlider').value = modalPain;
-    mUpdatePain(modalPain);
-    document.getElementById('mMemoInput').value = rec ? (rec.memo || '') : '';
+    modalDateKey=key;
+    const rec=loadData()[key]||null;
+    modalMood=rec?rec.mood:null; modalCond=rec?rec.condition:null; modalPain=rec?rec.pain:null;
+    modalJoints=new Set(rec?(rec.joints||[]):[]);
+    const [y,m,d]=key.split('-').map(Number), dt=new Date(y,m-1,d);
+    const DN=['日','月','火','水','木','金','土'];
+    document.getElementById('modalDateTitle').textContent=`${y}年${m}月${d}日（${DN[dt.getDay()]}）のきろく`;
+    document.querySelectorAll('.m-mood-btn').forEach(b=>b.classList.toggle('sel',+b.dataset.mood===modalMood));
+    document.querySelectorAll('.m-cond-btn').forEach(b=>b.classList.toggle('sel',+b.dataset.cond===modalCond));
+    document.querySelectorAll('.m-pain-btn').forEach(b=>b.classList.toggle('sel',+b.dataset.pain===modalPain));
+    document.getElementById('mMedicineInput').value=rec?(rec.medicine||''):'';
+    document.getElementById('mMemoInput').value=rec?(rec.memo||''):'';
     mRefreshJointUI();
-
-    document.getElementById('modalOverlay').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    document.getElementById('modalOverlay').style.display='flex';
+    document.body.style.overflow='hidden';
 }
+function closeDateModal() { document.getElementById('modalOverlay').style.display='none'; document.body.style.overflow=''; }
 
-function closeDateModal() {
-    document.getElementById('modalOverlay').style.display = 'none';
-    document.body.style.overflow = '';
-}
-
-function mSelectMood(val) {
-    modalMood = val;
-    document.querySelectorAll('.m-mood-btn').forEach(b => {
-        b.classList.toggle('selected', parseInt(b.dataset.mood) === val);
-    });
-}
-
-function mUpdatePain(val) {
-    modalPain = parseInt(val);
-    const v   = modalPain;
-    document.getElementById('mPainDisplay').innerHTML =
-        `<span style="color:${PAIN_COL[v]}">${PAIN_EMO[v]}</span> ` +
-        `<span style="color:${PAIN_COL[v]};font-size:22px;">${v}</span>`;
-}
-
-function mToggleJoint(id) {
-    modalJoints.has(id) ? modalJoints.delete(id) : modalJoints.add(id);
-    mRefreshJointUI();
-}
-function mClearJoints() { modalJoints.clear(); mRefreshJointUI(); }
-
+function mSelectMood(v) { modalMood=v; document.querySelectorAll('.m-mood-btn').forEach(b=>b.classList.toggle('sel',+b.dataset.mood===v)); }
+function mSelectCond(v) { modalCond=v; document.querySelectorAll('.m-cond-btn').forEach(b=>b.classList.toggle('sel',+b.dataset.cond===v)); }
+function mSelectPain(v) { modalPain=v; document.querySelectorAll('.m-pain-btn').forEach(b=>b.classList.toggle('sel',+b.dataset.pain===v)); }
+function mToggleJoint(id) { modalJoints.has(id)?modalJoints.delete(id):modalJoints.add(id); mRefreshJointUI(); }
+function mClearJoints()   { modalJoints.clear(); mRefreshJointUI(); }
 function mRefreshJointUI() {
-    JOINTS.forEach(j => {
-        const g = document.getElementById(`mjg-${j.id}`);
-        if (g) g.classList.toggle('on', modalJoints.has(j.id));
-    });
-    const tagsEl = document.getElementById('mJointTags');
-    if (modalJoints.size === 0) {
-        tagsEl.innerHTML = '<span class="jtag-none">タップして選択</span>';
-    } else {
-        tagsEl.innerHTML = JOINTS.filter(j => modalJoints.has(j.id))
-            .map(j => `<span class="jtag" onclick="mToggleJoint('${j.id}')">${j.label} ✕</span>`)
-            .join('');
-    }
+    JOINTS.forEach(j=>{ const g=document.getElementById(`mjg-${j.id}`); if(g) g.classList.toggle('on',modalJoints.has(j.id)); });
+    const el=document.getElementById('mJointTags');
+    el.innerHTML=modalJoints.size===0?'<span class="jtag-none">タップして選択</span>'
+        :JOINTS.filter(j=>modalJoints.has(j.id)).map(j=>`<span class="jtag" onclick="mToggleJoint('${j.id}')">${j.label} ✕</span>`).join('');
 }
-
 function saveModalRecord() {
     if (!modalMood) { alert('ご機嫌度を選んでね 💓'); return; }
-    const data = loadData();
-    data[modalDateKey] = {
-        mood: modalMood, pain: modalPain,
-        joints: [...modalJoints],
-        memo: document.getElementById('mMemoInput').value.trim(),
-        time: new Date().toISOString(),
-    };
-    saveData(data);
-    showToast('💓 記録を保存したよ！');
-    closeDateModal();
-    renderCurrentView();
-    if (modalDateKey === dateKey(today)) { loadTodayData(); showCheerMsg(); }
+    const data=loadData();
+    data[modalDateKey]={ mood:modalMood, condition:modalCond, pain:modalPain, joints:[...modalJoints],
+        medicine:document.getElementById('mMedicineInput').value.trim(),
+        memo:document.getElementById('mMemoInput').value.trim(), time:new Date().toISOString() };
+    saveData(data); showToast('💓 記録を保存したよ！'); closeDateModal(); renderCurrentView(); renderStreak();
+    if (modalDateKey===dateKey(today)) loadTodayData();
 }
 
-// ── Service Worker 登録 ──
+// ── Service Worker ──
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-    });
+    window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
 }
 
+// ── 初期化 ──
+migrateData();
 buildJointSvg();
 buildJointSvgModal();
 loadTodayData();
-showCheerMsg();
+renderStreak();
 renderWeek();
 </script>
 </body>
