@@ -1,5 +1,5 @@
 // キャッシュ名（バージョンを上げると全員に更新が届く）
-const CACHE = 'genki-note-v3';
+const CACHE = 'genki-note-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
 // インストール：アセットをキャッシュに保存
