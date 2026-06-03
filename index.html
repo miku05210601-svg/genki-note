@@ -59,6 +59,20 @@
             font-size: 13px; font-weight: 800; color: #c44e7e;
         }
 
+        /* ── チャッティー ── */
+        .chattie-wrap {
+            display: flex; align-items: flex-end; gap: 10px;
+            margin-bottom: 12px; padding: 0 2px;
+        }
+        .chattie-icon { font-size: 32px; flex-shrink: 0; line-height: 1; }
+        .chattie-bubble {
+            background: #ffffff; border: 1.5px solid #ffc6df;
+            border-radius: 18px 18px 18px 4px;
+            padding: 11px 15px; font-size: 13px; color: #3d1a2e;
+            line-height: 1.6; box-shadow: 0 2px 12px rgba(214,69,126,.09);
+            flex: 1; position: relative;
+        }
+
         /* ── 今日のひとこと ── */
         .daily-msg-card {
             background: linear-gradient(135deg,#fff0f8,#fce7f3);
@@ -133,6 +147,17 @@
         }
         @keyframes jbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
         .jhit { fill: transparent; }
+        /* 背面関節（点線で区別） */
+        .jg.back-joint .jvis {
+            fill: rgba(255,255,255,.75); stroke: #c4a0b8; stroke-width: 1.8; stroke-dasharray: 3,2;
+        }
+        .jg.back-joint:hover .jvis { fill: #ffe4f1; stroke: #f472b6; stroke-dasharray: none; }
+        .jg.back-joint.on .jvis {
+            fill: #f472b6; stroke: #e11d8b; stroke-dasharray: none;
+            filter: drop-shadow(0 0 5px rgba(244,114,182,.75));
+            animation: jbeat 1.4s ease-in-out infinite;
+            transform-box: fill-box; transform-origin: center;
+        }
         .joint-tags {
             display: flex; flex-wrap: wrap; gap: 5px;
             justify-content: center; min-height: 26px; padding: 0 4px;
@@ -406,6 +431,12 @@
     <div class="streak-badge" id="streakBadge" style="display:none;"></div>
 </div>
 
+<!-- チャッティー -->
+<div class="chattie-wrap" id="chattieWrap" style="display:none;">
+    <span class="chattie-icon">💓</span>
+    <div class="chattie-bubble" id="chattieBubble"></div>
+</div>
+
 <!-- 今日のひとこと -->
 <div class="daily-msg-card" id="dailyMsgCard">
     <span class="daily-msg-icon">🌸</span>
@@ -473,7 +504,7 @@
                 <ellipse cx="130" cy="395" rx="10" ry="5" fill="#ffe4f1" stroke="#ffb3d1" stroke-width="1.5"/>
                 <rect x="63" y="69" width="74" height="160" rx="14" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
                 <rect x="91" y="52" width="18" height="21" rx="6" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
-                <circle cx="100" cy="30" r="23" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
+                <circle cx="100" cy="30" r="26" fill="#fff0f5" stroke="#ffb3d1" stroke-width="2"/>
                 <ellipse cx="87"  cy="36" rx="6" ry="4" fill="#f9a8d4" opacity="0.45"/>
                 <ellipse cx="113" cy="36" rx="6" ry="4" fill="#f9a8d4" opacity="0.45"/>
                 <circle cx="93"  cy="26" r="2.5" fill="#c44e7e"/>
@@ -487,6 +518,10 @@
                 <text x="189" y="218" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">指</text>
                 <text x="16"  y="108" font-size="14" fill="#e8659a" font-weight="bold" text-anchor="middle" font-family="sans-serif">左</text>
                 <text x="184" y="108" font-size="14" fill="#e8659a" font-weight="bold" text-anchor="middle" font-family="sans-serif">右</text>
+                <!-- 背面関節ラベル -->
+                <text x="100" y="78"  font-size="7" fill="#c4a0b8" text-anchor="middle" font-family="sans-serif">首の後ろ</text>
+                <text x="100" y="126" font-size="7" fill="#c4a0b8" text-anchor="middle" font-family="sans-serif">背中</text>
+                <text x="100" y="192" font-size="7" fill="#c4a0b8" text-anchor="middle" font-family="sans-serif">腰</text>
                 <g id="jointLayer"></g>
             </svg>
             <div class="joint-tags" id="jointTags"><span class="jtag-none">タップして選択</span></div>
@@ -675,6 +710,10 @@
           <text x="189" y="218" font-size="8.5" fill="#e4b0c6" text-anchor="middle" font-family="sans-serif">指</text>
           <text x="16"  y="108" font-size="14" fill="#e8659a" font-weight="bold" text-anchor="middle" font-family="sans-serif">左</text>
           <text x="184" y="108" font-size="14" fill="#e8659a" font-weight="bold" text-anchor="middle" font-family="sans-serif">右</text>
+          <!-- 背面関節ラベル -->
+          <text x="100" y="78"  font-size="7" fill="#c4a0b8" text-anchor="middle" font-family="sans-serif">首の後ろ</text>
+          <text x="100" y="126" font-size="7" fill="#c4a0b8" text-anchor="middle" font-family="sans-serif">背中</text>
+          <text x="100" y="192" font-size="7" fill="#c4a0b8" text-anchor="middle" font-family="sans-serif">腰</text>
           <g id="mJointLayer"></g>
         </svg>
         <div class="joint-tags" id="mJointTags"><span class="jtag-none">タップして選択</span></div>
@@ -750,6 +789,38 @@ const DAILY_MSGS = [
     '続けているあなたを、今日も応援しているよ',
 ];
 
+// ── チャッティー ──
+function getChattieMsg() {
+    const data    = loadData();
+    const streak  = calcStreak();
+    const todayRec = data[dateKey(today)];
+    const yd = new Date(today); yd.setDate(yd.getDate() - 1);
+    const ydRec   = data[dateKey(yd)];
+
+    if (!todayRec) {
+        if (streak >= 3) return `${streak}日続いてるよ、今日も待ってるね 💓`;
+        return 'いつでも来てね、待ってるよ 💓';
+    }
+    if (todayRec.pain === 1)                            return '今日は痛みがないんだね、よかった 🌸';
+    if (todayRec.mood === 5 && todayRec.condition === 5) return '今日は絶好調！素晴らしい一日だね 🌈';
+    if (todayRec.pain >= 4 && ydRec && ydRec.pain >= 4) return 'つらい日が続いてるね。無理しないでね 💓';
+    if (todayRec.pain >= 4)                             return '痛い日でも来てくれてありがとう 💓';
+    if (ydRec && todayRec.pain < ydRec.pain)            return '昨日より痛みが落ち着いてる 🌸 よかったね';
+    if (ydRec && todayRec.mood > ydRec.mood)            return '昨日より元気そうでよかった 😊';
+    if (ydRec && todayRec.mood < ydRec.mood)            return 'つらい日もある。ゆっくりしてね 💓';
+    if (streak >= 30) return `${streak}日継続中！本当にすごいね 🏅`;
+    if (streak >= 7)  return `${streak}日続いてるね、コツコツえらい 🌸`;
+    if (streak === 1) return '記録してくれてありがとう、また明日も来てね 🌱';
+    return 'いつもありがとう、体を大切にね 💓';
+}
+function renderChattie() {
+    const wrap   = document.getElementById('chattieWrap');
+    const bubble = document.getElementById('chattieBubble');
+    if (!wrap || !bubble) return;
+    bubble.textContent = getChattieMsg();
+    wrap.style.display = 'flex';
+}
+
 let lastMsgIdx = -1;
 function refreshDailyMsg() {
     let idx;
@@ -780,20 +851,24 @@ const JOINTS = [
     { id:'l-ank', label:'右足首',    cx:120, cy:360 },
     { id:'r-toe', label:'左足指',    cx:73,  cy:388 },
     { id:'l-toe', label:'右足指',    cx:127, cy:388 },
+    // 背面関節（点線表示）
+    { id:'neck-back',  label:'首の後ろ', cx:100, cy:82,  back:true },
+    { id:'back',       label:'背中',     cx:100, cy:130, back:true },
+    { id:'lower-back', label:'腰',       cx:100, cy:196, back:true },
 ];
 
 function buildJointSvg() {
     document.getElementById('jointLayer').innerHTML = JOINTS.map(j => `
-        <g class="jg" id="jg-${j.id}" onclick="toggleJoint('${j.id}')" role="button" aria-label="${j.label}">
-            <circle class="jhit" cx="${j.cx}" cy="${j.cy}" r="14"/>
-            <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="7"/>
+        <g class="jg${j.back ? ' back-joint' : ''}" id="jg-${j.id}" onclick="toggleJoint('${j.id}')" role="button" aria-label="${j.label}">
+            <circle class="jhit" cx="${j.cx}" cy="${j.cy}" r="16"/>
+            <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="${j.back ? 6 : 7}"/>
         </g>`).join('');
 }
 function buildJointSvgModal() {
     document.getElementById('mJointLayer').innerHTML = JOINTS.map(j => `
-        <g class="jg" id="mjg-${j.id}" onclick="mToggleJoint('${j.id}')" role="button" aria-label="${j.label}">
-            <circle class="jhit" cx="${j.cx}" cy="${j.cy}" r="14"/>
-            <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="7"/>
+        <g class="jg${j.back ? ' back-joint' : ''}" id="mjg-${j.id}" onclick="mToggleJoint('${j.id}')" role="button" aria-label="${j.label}">
+            <circle class="jhit" cx="${j.cx}" cy="${j.cy}" r="16"/>
+            <circle class="jvis" cx="${j.cx}" cy="${j.cy}" r="${j.back ? 6 : 7}"/>
         </g>`).join('');
 }
 
@@ -968,6 +1043,7 @@ function saveRecord() {
     const streak = calcStreak();
     renderStreak();
     showHorehore(streak);
+    renderChattie();
     renderCurrentView();
 }
 
@@ -1338,6 +1414,7 @@ loadTodayData();
 renderStreak();
 renderWeek();
 refreshDailyMsg();
+renderChattie();
 </script>
 </body>
 </html>
