@@ -12,14 +12,14 @@
     <link rel="apple-touch-icon" href="./icon.svg">
     <style>
         :root {
-            --bg:      #fff6f9;
+            --bg:      #FFF9FC;
             --surface: #ffffff;
             --sf2:     #fff0f5;
             --border:  #ffd6e8;
-            --accent:  #e8659a;
-            --text:    #5c2e42;
-            --muted:   #c4849a;
-            --shadow:  rgba(232,101,154,0.15);
+            --accent:  #d6457e;
+            --text:    #2d1a26;
+            --muted:   #9b6880;
+            --shadow:  rgba(200,80,130,0.12);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -58,6 +58,31 @@
             padding: 5px 15px; margin-top: 10px;
             font-size: 13px; font-weight: 800; color: #c44e7e;
         }
+
+        /* ── 今日のひとこと ── */
+        .daily-msg-card {
+            background: linear-gradient(135deg,#fff0f8,#fce7f3);
+            border: 1.5px solid #ffc6df; border-radius: 22px;
+            padding: 18px 20px; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 14px;
+            box-shadow: 0 3px 18px rgba(232,101,154,.1);
+        }
+        .daily-msg-icon { font-size: 28px; flex-shrink: 0; }
+        .daily-msg-body { flex: 1; }
+        .daily-msg-label {
+            font-size: 10px; font-weight: 700; color: #d6457e;
+            letter-spacing: .08em; margin-bottom: 5px;
+        }
+        .daily-msg-text {
+            font-size: 15px; font-weight: 700; color: #3d1a2e;
+            line-height: 1.55;
+        }
+        .daily-msg-refresh {
+            background: none; border: none; font-size: 18px; color: #f9a8d4;
+            cursor: pointer; padding: 4px; flex-shrink: 0; transition: transform .3s;
+        }
+        .daily-msg-refresh:hover { transform: rotate(180deg); color: #d6457e; }
+        .daily-msg-text { transition: opacity .2s ease; }
 
         /* ── カード共通 ── */
         .card {
@@ -381,6 +406,16 @@
     <div class="streak-badge" id="streakBadge" style="display:none;"></div>
 </div>
 
+<!-- 今日のひとこと -->
+<div class="daily-msg-card" id="dailyMsgCard">
+    <span class="daily-msg-icon">🌸</span>
+    <div class="daily-msg-body">
+        <div class="daily-msg-label">今日のひとこと</div>
+        <div class="daily-msg-text" id="dailyMsgText"></div>
+    </div>
+    <button class="daily-msg-refresh" onclick="refreshDailyMsg()" title="別のことばを見る">↻</button>
+</div>
+
 <!-- ほめほめオーバーレイ -->
 <div class="horehore-overlay" id="horehoreOverlay" onclick="closeHorehore()">
     <div class="horehore-big-emoji" id="horeEmoji">🌸</div>
@@ -671,6 +706,59 @@
 <div class="toast" id="toast">💓 記録しました！</div>
 
 <script>
+// ── 今日のひとこと（40パターン） ──
+const DAILY_MSGS = [
+    '昨日より少し元気なら、それで大成功',
+    'あなたのペースが、いちばん正しいペース',
+    '今日も体を大切にできていてえらい',
+    '痛い日は、休むのが一番の治療',
+    '小さな回復も、立派な前進',
+    '無理しない日も、大切な一日',
+    '今日もここに来てくれてありがとう',
+    'あなたの体は、今日もよくやっています',
+    '調子が悪くても、記録できたことがえらい',
+    '記録することが、未来の自分への贈り物',
+    '昨日と同じでも、それはゼロじゃない',
+    '体がつらいときは、心だけ前を向けばいい',
+    '少しずつ、でもちゃんと、前に進んでいる',
+    '痛みと戦わなくていい、ただ付き合えばいい',
+    '休んだ日も、ちゃんと体は回復している',
+    '数字より、あなたの感覚を大切にして',
+    '今日もただそこにいるだけで十分',
+    '季節が変わるように、体も少しずつ変わっていく',
+    '「しんどい」を記録できることが、強さのひとつ',
+    '自分の体と、仲良しになっていこう',
+    '比べなくていい。あなたはあなたのペースでいい',
+    '焦らなくていい。体には体のタイミングがある',
+    '今日も一緒に、ここにいるよ',
+    'どんな日でも、記録したあなたはえらい',
+    '元気な日も、つらい日も、あなたの大切な記録',
+    '体に「今日もありがとう」と伝えてみよう',
+    '小さな良い変化を、見逃さないで',
+    '今日のあなたに、よくがんばったねと言いたい',
+    '痛みがある日は、特別に優しくしてあげて',
+    'ゆっくりでも、歩いていれば必ず変わる',
+    '今日の記録が、明日の希望になる',
+    '体が教えてくれることを、丁寧に聞いてあげよう',
+    '少しだけ、自分を褒めてみて',
+    '記録を続けることが、自分への愛情',
+    'どんな数字でも、あなたの今日は本物',
+    '体に無理させないでいられる日は、大事な日',
+    '今日の小さな気づきが、明日につながる',
+    'あなたがここにいるだけで、十分すぎるくらい',
+    '今日という日を、自分のために過ごしてね',
+    '続けているあなたを、今日も応援しているよ',
+];
+
+let lastMsgIdx = -1;
+function refreshDailyMsg() {
+    let idx;
+    do { idx = Math.floor(Math.random() * DAILY_MSGS.length); } while (idx === lastMsgIdx && DAILY_MSGS.length > 1);
+    lastMsgIdx = idx;
+    const el = document.getElementById('dailyMsgText');
+    if (el) { el.style.opacity = 0; setTimeout(() => { el.textContent = DAILY_MSGS[idx]; el.style.opacity = 1; }, 200); }
+}
+
 // ── 関節データ ──
 const JOINTS = [
     { id:'r-jaw', label:'左顎(TMJ)', cx:84,  cy:46  },
@@ -1249,6 +1337,7 @@ buildJointSvgModal();
 loadTodayData();
 renderStreak();
 renderWeek();
+refreshDailyMsg();
 </script>
 </body>
 </html>
