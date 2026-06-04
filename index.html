@@ -59,20 +59,6 @@
             font-size: 13px; font-weight: 800; color: #c44e7e;
         }
 
-        /* ── チャッティー ── */
-        .chattie-wrap {
-            display: flex; align-items: flex-end; gap: 10px;
-            margin-bottom: 12px; padding: 0 2px;
-        }
-        .chattie-icon { font-size: 32px; flex-shrink: 0; line-height: 1; }
-        .chattie-bubble {
-            background: #ffffff; border: 1.5px solid #ffc6df;
-            border-radius: 18px 18px 18px 4px;
-            padding: 11px 15px; font-size: 13px; color: #3d1a2e;
-            line-height: 1.6; box-shadow: 0 2px 12px rgba(214,69,126,.09);
-            flex: 1; position: relative;
-        }
-
         /* ── 今日のひとこと ── */
         .daily-msg-card {
             background: linear-gradient(135deg,#fff0f8,#fce7f3);
@@ -431,12 +417,6 @@
     <div class="streak-badge" id="streakBadge" style="display:none;"></div>
 </div>
 
-<!-- チャッティー -->
-<div class="chattie-wrap" id="chattieWrap" style="display:none;">
-    <span class="chattie-icon">💓</span>
-    <div class="chattie-bubble" id="chattieBubble"></div>
-</div>
-
 <!-- 今日のひとこと -->
 <div class="daily-msg-card" id="dailyMsgCard">
     <span class="daily-msg-icon">🌸</span>
@@ -789,37 +769,6 @@ const DAILY_MSGS = [
     '続けているあなたを、今日も応援しているよ',
 ];
 
-// ── チャッティー ──
-function getChattieMsg() {
-    const data    = loadData();
-    const streak  = calcStreak();
-    const todayRec = data[dateKey(today)];
-    const yd = new Date(today); yd.setDate(yd.getDate() - 1);
-    const ydRec   = data[dateKey(yd)];
-
-    if (!todayRec) {
-        if (streak >= 3) return `${streak}日続いてるよ、今日も待ってるね 💓`;
-        return 'いつでも来てね、待ってるよ 💓';
-    }
-    if (todayRec.pain === 1)                            return '今日は痛みがないんだね、よかった 🌸';
-    if (todayRec.mood === 5 && todayRec.condition === 5) return '今日は絶好調！素晴らしい一日だね 🌈';
-    if (todayRec.pain >= 4 && ydRec && ydRec.pain >= 4) return 'つらい日が続いてるね。無理しないでね 💓';
-    if (todayRec.pain >= 4)                             return '痛い日でも来てくれてありがとう 💓';
-    if (ydRec && todayRec.pain < ydRec.pain)            return '昨日より痛みが落ち着いてる 🌸 よかったね';
-    if (ydRec && todayRec.mood > ydRec.mood)            return '昨日より元気そうでよかった 😊';
-    if (ydRec && todayRec.mood < ydRec.mood)            return 'つらい日もある。ゆっくりしてね 💓';
-    if (streak >= 30) return `${streak}日継続中！本当にすごいね 🏅`;
-    if (streak >= 7)  return `${streak}日続いてるね、コツコツえらい 🌸`;
-    if (streak === 1) return '記録してくれてありがとう、また明日も来てね 🌱';
-    return 'いつもありがとう、体を大切にね 💓';
-}
-function renderChattie() {
-    const wrap   = document.getElementById('chattieWrap');
-    const bubble = document.getElementById('chattieBubble');
-    if (!wrap || !bubble) return;
-    bubble.textContent = getChattieMsg();
-    wrap.style.display = 'flex';
-}
 
 let lastMsgIdx = -1;
 function refreshDailyMsg() {
@@ -1043,7 +992,6 @@ function saveRecord() {
     const streak = calcStreak();
     renderStreak();
     showHorehore(streak);
-    renderChattie();
     renderCurrentView();
 }
 
@@ -1414,7 +1362,6 @@ loadTodayData();
 renderStreak();
 renderWeek();
 refreshDailyMsg();
-renderChattie();
 </script>
 </body>
 </html>
